@@ -503,6 +503,7 @@ export function getMarketFinancialSummary(
   let totalEstimated = 0;
   let totalRealPaid = 0;
   let itemsInPantryCount = 0;
+  let savingsPantryCop = 0;
   let itemsBoughtCount = 0;
   let itemsToBuyTotal = 0;
 
@@ -513,6 +514,7 @@ export function getMarketFinancialSummary(
 
     if (isInPantry) {
       itemsInPantryCount++;
+      savingsPantryCop += item.estimatedPriceCop || 0;
       continue;
     }
 
@@ -539,6 +541,7 @@ export function getMarketFinancialSummary(
     totalRealPaid,
     difference,
     itemsInPantryCount,
+    savingsPantryCop,
     itemsBoughtCount,
     itemsToBuyTotal,
     progressPercentage:
@@ -547,4 +550,72 @@ export function getMarketFinancialSummary(
         : 100
   };
 }
+
+export function swapDinnerRecipe(dayNumber: number, newRecipeId: string): void {
+  const state = getHouseholdState();
+  if (!state.swappedRecipes) {
+    state.swappedRecipes = {};
+  }
+  state.swappedRecipes[dayNumber] = newRecipeId;
+  saveHouseholdState(state);
+}
+
+export function toggleMealPacked(dayNumber: number): boolean {
+  const state = getHouseholdState();
+  if (!state.packedDays) {
+    state.packedDays = [];
+  }
+  const idx = state.packedDays.indexOf(dayNumber);
+  let isPacked = false;
+  if (idx >= 0) {
+    state.packedDays.splice(idx, 1);
+    isPacked = false;
+  } else {
+    state.packedDays.push(dayNumber);
+    isPacked = true;
+  }
+  saveHouseholdState(state);
+  return isPacked;
+}
+
+export function isMealPacked(dayNumber: number): boolean {
+  const state = getHouseholdState();
+  return (state.packedDays || []).includes(dayNumber);
+}
+
+export function toggleIngredientHave(ingredientName: string): boolean {
+  const state = getHouseholdState();
+  if (!state.pantryIngredientNames) {
+    state.pantryIngredientNames = {};
+  }
+  const current = !!state.pantryIngredientNames[ingredientName];
+  state.pantryIngredientNames[ingredientName] = !current;
+  saveHouseholdState(state);
+  return !current;
+}
+
+export function isIngredientOwned(ingredientName: string): boolean {
+  const state = getHouseholdState();
+  return !!state.pantryIngredientNames?.[ingredientName];
+}
+
+export function setHouseholdMembersCount(count: number): void {
+  const state = getHouseholdState();
+  state.householdMembersCount = count;
+  saveHouseholdState(state);
+}
+
+export function setHouseholdBudget(amount: number): void {
+  const state = getHouseholdState();
+  state.budgetAmount = amount;
+  state.estimatedBudgetCop = amount;
+  saveHouseholdState(state);
+}
+
+export function setPlanDurationDays(days: number): void {
+  const state = getHouseholdState();
+  state.planDurationDays = days;
+  saveHouseholdState(state);
+}
+
 

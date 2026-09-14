@@ -6,6 +6,7 @@ import { User, Recipe } from '@/types';
 import { TopHeader } from '@/components/TopHeader';
 import { BottomNav } from '@/components/BottomNav';
 import { RecipeModal } from '@/components/RecipeModal';
+import { CookingModeModal } from '@/components/CookingModeModal';
 import { RECIPES } from '@/data/recipesData';
 import { SHOPPING_LIST_INITIAL } from '@/data/shoppingData';
 import {
@@ -30,6 +31,8 @@ export default function RecipesPage() {
   const [filterType, setFilterType] = useState<FilterType>('todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [isCookingOpen, setIsCookingOpen] = useState(false);
+  const [cookingRecipe, setCookingRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
     setCurrentUser(getCurrentSession());
@@ -287,9 +290,23 @@ export default function RecipesPage() {
         recipe={selectedRecipe}
         servingMultiplier={household.servingMultiplier || 1.0}
         onClose={() => setSelectedRecipe(null)}
+        onStartCooking={() => {
+          if (selectedRecipe) {
+            setCookingRecipe(selectedRecipe);
+            setSelectedRecipe(null);
+            setIsCookingOpen(true);
+          }
+        }}
       />
 
-      <BottomNav pendingMarketCount={pendingMarketCount} />
+      {isCookingOpen && cookingRecipe && (
+        <CookingModeModal
+          recipe={cookingRecipe}
+          onClose={() => setIsCookingOpen(false)}
+        />
+      )}
+
+      <BottomNav />
     </div>
   );
 }

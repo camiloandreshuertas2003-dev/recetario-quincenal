@@ -164,5 +164,11 @@ export interface HouseholdState {
     }
   >;
   prepTasksChecked?: Record<string, boolean>; // e.g. "day-1-thaw": true
+  swappedRecipes?: Record<number, string>; // dayNumber -> recipeId
+  packedDays?: number[]; // list of days marked as packed
+  householdMembersCount?: number; // 1..5+ (default 4)
+  planDurationDays?: number; // 7, 14, or 15 (default 14)
+  budgetAmount?: number; // default 320000
+  pantryIngredientNames?: Record<string, boolean>; // ingredient name -> true if already owned
   updatedAt: string;
 }

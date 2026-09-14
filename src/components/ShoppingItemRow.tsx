@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MarketItem } from '@/types';
-import { Check, Trash2, CalendarClock, Scale, DollarSign, Home, Edit3 } from 'lucide-react';
+import { Check, Trash2, CalendarClock, Scale, DollarSign, Home, Edit3, Sparkles } from 'lucide-react';
 
 interface ShoppingItemRowProps {
   item: MarketItem;
@@ -16,6 +16,7 @@ interface ShoppingItemRowProps {
   onDelete?: () => void;
   onUpdateRealData?: (data: { realPriceCop?: number; realAmountBought?: string }) => void;
   onTogglePantry?: () => void;
+  onOpenDetail?: () => void;
 }
 
 export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
@@ -29,7 +30,8 @@ export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
   onToggle,
   onDelete,
   onUpdateRealData,
-  onTogglePantry
+  onTogglePantry,
+  onOpenDetail
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localPrice, setLocalPrice] = useState<string>(
@@ -172,6 +174,18 @@ export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
 
             {/* Quick Action Buttons */}
             <div className="flex items-center gap-1.5 ml-auto">
+              {onOpenDetail && (
+                <button
+                  type="button"
+                  onClick={onOpenDetail}
+                  className="px-2.5 py-1 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-lg transition-colors flex items-center gap-1 border border-brand-200"
+                  title="Ver sustitutos económicos y ajustar cantidad"
+                >
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  <span>Sustitutos</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
