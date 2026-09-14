@@ -2,9 +2,14 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Recetario Quincenal | Cenas que resuelven el almuerzo',
-  description: 'Plan de alimentación quincenal colombiano para 2 personas. Cenas de 4 porciones que dejan listo el almuerzo del día siguiente y desayunos exprés.',
+  title: 'Nuestro menú | Cenas que resuelven el almuerzo para 2',
+  description: 'Nuestro menú: Plan de alimentación quincenal colombiano para 2 personas. Cenas de 4 porciones que dejan listo el almuerzo del día siguiente, desayunos exprés y lista de mercado inteligente.',
   manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Nuestro menú'
+  },
   icons: {
     icon: '/favicon.ico',
     apple: '/icon-192.png'
@@ -12,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#16a34a',
+  themeColor: '#15803d',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -29,9 +34,10 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Nuestro menú" />
       </head>
-      <body className="bg-slate-100 min-h-screen text-slate-900 antialiased selection:bg-brand-500 selection:text-white">
-        <div className="max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col relative shadow-xl border-x border-slate-200/60 pb-20">
+      <body className="bg-slate-950 min-h-screen text-slate-900 antialiased selection:bg-brand-500 selection:text-white">
+        <div className="max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col relative shadow-2xl border-x border-slate-200/80 pb-20">
           {children}
         </div>
       </body>

@@ -7,6 +7,7 @@ import {
   getHouseholdState,
   toggleDayCompleted,
   updateStartDate,
+  getTodayDayNumber,
   logoutUser
 } from '@/lib/storage';
 import { User, Recipe, DayMealPlan } from '@/types';
@@ -28,7 +29,9 @@ import {
   Sparkles,
   CalendarCheck,
   Calendar,
-  Settings2
+  Flame,
+  ArrowRight,
+  Utensils
 } from 'lucide-react';
 
 export default function Home() {
@@ -53,21 +56,16 @@ export default function Home() {
   useEffect(() => {
     refreshState();
 
-    // Check splash
     if (typeof window !== 'undefined') {
-      const seen = sessionStorage.getItem('recetario_splash_seen');
+      const seen = sessionStorage.getItem('nuestro_menu_splash_seen');
       if (!seen) {
         setShowSplash(true);
-        sessionStorage.setItem('recetario_splash_seen', 'true');
+        sessionStorage.setItem('nuestro_menu_splash_seen', 'true');
       }
     }
 
-    const handleStateChange = () => {
-      setHousehold(getHouseholdState());
-    };
-    const handleSessionChange = () => {
-      setCurrentUser(getCurrentSession());
-    };
+    const handleStateChange = () => setHousehold(getHouseholdState());
+    const handleSessionChange = () => setCurrentUser(getCurrentSession());
 
     window.addEventListener('recetario_state_changed', handleStateChange);
     window.addEventListener('recetario_session_changed', handleSessionChange);
@@ -158,35 +156,88 @@ export default function Home() {
   const checkedMarketCount = Object.keys(household.checkedItems || {}).length;
   const pendingMarketCount = Math.max(0, totalMarketItems - checkedMarketCount);
 
+  // Identify today's day plan
+  const todayDayNumber = getTodayDayNumber(household.startDate);
+  const todayPlan = allPlans.find((p) => p.dayNumber === todayDayNumber) || allPlans[0];
+
   return (
     <div className="flex-1 flex flex-col">
-      {/* Animated Splash Screen on app launch */}
+      {/* Animated Splash Screen */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
 
-      <TopHeader user={currentUser} onLogout={handleLogout} />
+      <TopHeader
+        user={currentUser}
+        servingMultiplier={household.servingMultiplier || 1.0}
+        onLogout={handleLogout}
+        onRefresh={refreshState}
+      />
 
-      <main className="flex-1 px-4 py-4 space-y-4">
+      <main className="flex-1 px-4 py-3.5 space-y-3.5">
         {/* PWA Install Banner */}
         <PwaInstallBanner />
 
-        {/* Banner de Bienvenida y Principios del Plan */}
-        <div className="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-emerald-900 text-white p-4 sm:p-5 shadow-lg relative overflow-hidden">
-          <div className="relative z-10">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-brand-200 tracking-wider uppercase mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Sistema Ahorro de Tiempo y Dinero</span>
+        {/* Smart 'Today' Highlight Card */}
+        {todayPlan && (
+          <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-brand-950 text-white p-4 shadow-lg border border-brand-500/30 relative overflow-hidden">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 text-xs font-black text-brand-400 uppercase tracking-wider">
+                <Flame className="w-3.5 h-3.5 text-warm-400" />
+                <span>Hoy en Nuestro menú</span>
+              </div>
+              <span className="text-[10px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full">
+                Día {todayPlan.dayNumber} de {totalDays}
+              </span>
             </div>
-            <h2 className="text-lg sm:text-xl font-black leading-tight">
-              Recetario Quincenal para 2
+
+            <h3 className="text-base sm:text-lg font-black leading-snug">
+              {todayPlan.dinner.title}
+            </h3>
+
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-slate-300">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3 text-slate-400" />
+                {todayPlan.dinner.prepTime}
+              </span>
+              <span>•</span>
+              <span className="text-brand-300 font-medium">
+                4 porciones: 2 cena + 2 almuerzo
+              </span>
+            </div>
+
+            <div className="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between">
+              <button
+                onClick={() => handleOpenRecipe(todayPlan.dinner.recipeId)}
+                className="text-xs font-bold text-slate-950 bg-brand-400 hover:bg-brand-300 px-3 py-1.5 rounded-xl shadow-xs transition-colors flex items-center gap-1"
+              >
+                <Utensils className="w-3.5 h-3.5" />
+                <span>Cocinar ahora</span>
+              </button>
+
+              <span className="text-[11px] text-slate-400">
+                Almuerzo de mañana asegurado ✓
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Banner Quincenal & Principios */}
+        <div className="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-emerald-900 text-white p-4 shadow-md relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-200 tracking-wider uppercase mb-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Plan Quincenal Colombiano</span>
+            </div>
+            <h2 className="text-lg font-black leading-tight">
+              Nuestro menú para 2 personas
             </h2>
             <p className="text-xs text-brand-100 mt-1 leading-relaxed">
-              <strong>Regla clave:</strong> Cocina 4 porciones en la cena. Se comen 2 hoy y se refrigeran 2 para el almuerzo de mañana. ¡El almuerzo nunca se cocina en la mañana!
+              Cocina en la cena 4 porciones: comen 2 hoy y refrigeran 2 para el almuerzo del día siguiente. ¡Cero esfuerzo en la mañana!
             </p>
 
             {/* Micro stats & Calendar Start Date Toggle */}
-            <div className="mt-3 pt-3 border-t border-brand-600/60 flex items-center justify-between text-xs">
+            <div className="mt-3 pt-2.5 border-t border-brand-600/60 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <CalendarCheck className="w-4 h-4 text-warm-400" />
+                <CalendarCheck className="w-4 h-4 text-warm-300" />
                 <span>
                   Progreso: <strong>{completedCount} de {totalDays} días</strong>
                 </span>
@@ -217,7 +268,7 @@ export default function Home() {
                   />
                 </div>
                 <p className="text-[10px] text-brand-200 mt-1">
-                  Los 14 días se calcularán a partir de esta fecha en tus tarjetas diarias.
+                  Las fechas de cada día se sincronizan en todo el hogar.
                 </p>
               </div>
             )}
@@ -240,7 +291,7 @@ export default function Home() {
                   Rutina Diaria Recomendada
                 </h4>
                 <p className="text-[11px] text-slate-500">
-                  Paso a paso de 4 momentos para ahorrar hasta 2 horas al día
+                  4 momentos para ahorrar hasta 2 horas al día
                 </p>
               </div>
             </div>
@@ -252,11 +303,11 @@ export default function Home() {
           </button>
 
           {isRoutineOpen && (
-            <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-2.5">
+            <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-2 text-xs">
               {DAILY_ROUTINE.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-xs"
+                  className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/60"
                 >
                   <span className="font-bold text-brand-700 w-24 shrink-0">
                     {item.moment}:
@@ -270,9 +321,9 @@ export default function Home() {
                 </div>
               ))}
 
-              <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200/60 text-[11px] text-blue-900 space-y-1 mt-2">
+              <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200/60 text-[11px] text-blue-900 space-y-1 mt-1">
                 <p>
-                  🥗 <strong>ICBF:</strong> Alimentación con alimentos frescos y variados; leguminosas al menos dos veces por semana.
+                  🥗 <strong>ICBF:</strong> Leguminosas al menos dos veces por semana con alimentos frescos y variados.
                 </p>
                 <p>
                   🧊 <strong>USDA FSIS:</strong> Refrigera antes de 2 horas en recipientes poco profundos con tapa.
@@ -290,13 +341,14 @@ export default function Home() {
           onAddNewWeek={() => setIsAddWeekOpen(true)}
         />
 
-        {/* Listado de Días con Fechas Dinámicas */}
+        {/* Listado de Días */}
         <div className="space-y-3.5">
           {filteredPlans.map((day) => (
             <DayCard
               key={day.dayNumber}
               day={day}
               startDate={household.startDate}
+              servingMultiplier={household.servingMultiplier || 1.0}
               isCompleted={household.completedDays.includes(day.dayNumber)}
               onToggleComplete={() => handleToggleDay(day.dayNumber)}
               onOpenRecipe={handleOpenRecipe}
@@ -305,9 +357,10 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Modal de Detalle de Receta con Fotos e IA */}
+      {/* Modal de Detalle de Receta con Temporizador e IA */}
       <RecipeModal
         recipe={selectedRecipe}
+        servingMultiplier={household.servingMultiplier || 1.0}
         onClose={() => setSelectedRecipe(null)}
       />
 

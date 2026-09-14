@@ -13,12 +13,15 @@ import {
   Circle,
   Eye,
   Info,
-  Calendar
+  Calendar,
+  Sparkles,
+  Flame
 } from 'lucide-react';
 
 interface DayCardProps {
   day: DayMealPlan;
   startDate?: string;
+  servingMultiplier?: number;
   isCompleted: boolean;
   onToggleComplete: () => void;
   onOpenRecipe: (recipeId: string) => void;
@@ -27,36 +30,59 @@ interface DayCardProps {
 export const DayCard: React.FC<DayCardProps> = ({
   day,
   startDate,
+  servingMultiplier = 1.0,
   isCompleted,
   onToggleComplete,
   onOpenRecipe
 }) => {
   const dateInfo = calculateDateForDay(day.dayNumber, startDate);
+  const scaledPortions = Math.round(day.dinner.yieldPortions * servingMultiplier);
 
   return (
     <div
-      className={`rounded-3xl border transition-all duration-200 overflow-hidden shadow-xs ${
-        isCompleted
+      className={`rounded-3xl border transition-all duration-300 overflow-hidden ${
+        dateInfo.isToday
+          ? 'ring-2 ring-brand-500 shadow-lg shadow-brand-500/10 border-brand-400 bg-white'
+          : isCompleted
           ? 'bg-slate-50/90 border-slate-200 opacity-90'
-          : 'bg-white border-slate-200/80 hover:border-brand-300'
+          : 'bg-white border-slate-200/80 hover:border-brand-300 shadow-2xs'
       }`}
     >
-      {/* Header with Day Number and Calendar Date */}
-      <div className="p-4 bg-gradient-to-r from-slate-50 to-brand-50/30 border-b border-slate-100 flex items-center justify-between">
+      {/* Header with Day Number, Today Badge and Calendar Date */}
+      <div
+        className={`p-3.5 sm:p-4 border-b flex items-center justify-between ${
+          dateInfo.isToday
+            ? 'bg-gradient-to-r from-brand-600/10 via-brand-50 to-warm-50/30 border-brand-200'
+            : 'bg-gradient-to-r from-slate-50 to-brand-50/20 border-slate-100'
+        }`}
+      >
         <div className="flex items-center gap-2.5">
-          <span className="w-9 h-9 rounded-2xl bg-brand-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+          <span
+            className={`w-9 h-9 rounded-2xl font-black text-sm flex items-center justify-center shadow-xs transition-transform ${
+              dateInfo.isToday
+                ? 'bg-brand-600 text-white scale-105 animate-pulse'
+                : 'bg-slate-800 text-white'
+            }`}
+          >
             {day.dayNumber}
           </span>
           <div>
             <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-brand-700">
-              <span>Semana {day.weekNumber}</span>
+              {dateInfo.isToday ? (
+                <span className="bg-brand-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  ¡TOCA COCINAR HOY!
+                </span>
+              ) : (
+                <span>Semana {day.weekNumber}</span>
+              )}
               <span>•</span>
               <span className="flex items-center gap-1 text-slate-600 font-semibold lowercase first-letter:capitalize">
                 <Calendar className="w-3 h-3 text-brand-600" />
                 {dateInfo.formattedDate}
               </span>
             </div>
-            <h3 className="text-sm font-bold text-slate-900 leading-tight">
+            <h3 className="text-sm font-bold text-slate-900 leading-tight mt-0.5">
               {day.title}
             </h3>
           </div>
@@ -111,7 +137,7 @@ export const DayCard: React.FC<DayCardProps> = ({
             className="mt-2 text-xs font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 underline underline-offset-2"
           >
             <Eye className="w-3.5 h-3.5" />
-            Ver preparación e ingredientes
+            Ver ingredientes y foto
           </button>
         </div>
 
@@ -133,7 +159,7 @@ export const DayCard: React.FC<DayCardProps> = ({
             {day.lunch.packingTip}
           </p>
 
-          {/* Botón de receta para el almuerzo si aplica (ej. Sándwich Día 1) */}
+          {/* Botón de receta para el almuerzo del Día 1 */}
           {day.lunch.recipeId && (
             <button
               onClick={() => onOpenRecipe(day.lunch.recipeId!)}
@@ -164,7 +190,7 @@ export const DayCard: React.FC<DayCardProps> = ({
 
           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
             <span className="text-[10px] bg-white border border-emerald-300/80 text-emerald-900 font-bold px-2 py-0.5 rounded-md">
-              4 porciones: 2 cenan hoy + 2 mañana
+              {scaledPortions} porciones {servingMultiplier === 1.0 ? '(2 hoy + 2 mañana)' : `(${servingMultiplier}x)`}
             </span>
             <span className="text-[10px] bg-emerald-100/80 text-emerald-900 font-medium px-2 py-0.5 rounded-md">
               🌾 {day.dinner.carbohydrate}
@@ -184,7 +210,7 @@ export const DayCard: React.FC<DayCardProps> = ({
               className="text-xs font-bold text-brand-800 hover:text-brand-950 bg-white hover:bg-emerald-50 border border-brand-300 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors"
             >
               <Eye className="w-3.5 h-3.5 text-brand-600" />
-              Ver Receta, Foto y Gramos
+              Ver Receta, Foto y Temporizador
             </button>
             <div className="text-[10px] text-slate-500 font-medium flex items-center gap-1">
               <span>Almuerzo mañana</span>

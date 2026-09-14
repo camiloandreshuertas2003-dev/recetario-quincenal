@@ -13,23 +13,24 @@ import { User, MarketItem, MarketCategory } from '@/types';
 import { TopHeader } from '@/components/TopHeader';
 import { BottomNav } from '@/components/BottomNav';
 import { ShoppingItemRow } from '@/components/ShoppingItemRow';
+import { SupermarketModeModal } from '@/components/SupermarketModeModal';
 import {
   SHOPPING_LIST_INITIAL,
-  ORGANIZATION_TIPS,
-  OrganizationTip
+  ORGANIZATION_TIPS
 } from '@/data/shoppingData';
 import {
   ShoppingCart,
   Plus,
   RotateCcw,
   CheckCircle2,
-  Filter,
   ChevronDown,
   ChevronUp,
   Sparkles,
   Share2,
   MessageCircle,
-  Check
+  ShoppingBag,
+  Search,
+  DollarSign
 } from 'lucide-react';
 
 export default function ShoppingPage() {
@@ -38,7 +39,9 @@ export default function ShoppingPage() {
   const [selectedCategory, setSelectedCategory] = useState<
     'todos' | MarketCategory | 'pendientes' | 'dia8'
   >('todos');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isTipsOpen, setIsTipsOpen] = useState(false);
+  const [isSupermarketMode, setIsSupermarketMode] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('');
@@ -53,9 +56,7 @@ export default function ShoppingPage() {
   useEffect(() => {
     refreshState();
 
-    const handleStateChange = () => {
-      setHousehold(getHouseholdState());
-    };
+    const handleStateChange = () => setHousehold(getHouseholdState());
     window.addEventListener('recetario_state_changed', handleStateChange);
     return () => {
       window.removeEventListener('recetario_state_changed', handleStateChange);
@@ -109,7 +110,6 @@ export default function ShoppingPage() {
     setHousehold(getHouseholdState());
   };
 
-  // WhatsApp share generator
   const handleShareWhatsApp = () => {
     const pendingItems = allItems.filter((i) => !household.checkedItems[i.id]?.checked);
 
@@ -118,8 +118,8 @@ export default function ShoppingPage() {
       return;
     }
 
-    let text = `🛒 *Lista de Mercado para 15 Días (${household.householdName})*\n`;
-    text += `Faltan *${pendingItems.length}* productos por comprar:\n\n`;
+    let text = `🛒 *Lista de Mercado (Nuestro menú)*\n`;
+    text += `Pendientes por comprar (${pendingItems.length} de ${totalCount} productos):\n\n`;
 
     const proteinas = pendingItems.filter((i) => i.category === 'proteinas');
     const verduras = pendingItems.filter((i) => i.category === 'verduras');
@@ -128,7 +128,7 @@ export default function ShoppingPage() {
     if (proteinas.length > 0) {
       text += `🥩 *PROTEÍNAS Y GRANOS:*\n`;
       proteinas.forEach((p) => {
-        text += `• ${p.name}: ${p.buyAmount}\n`;
+        text += `[ ] ${p.name} -> ${p.buyAmount}\n`;
       });
       text += `\n`;
     }
@@ -136,7 +136,7 @@ export default function ShoppingPage() {
     if (verduras.length > 0) {
       text += `🥦 *VERDURAS Y TUBÉRCULOS:*\n`;
       verduras.forEach((v) => {
-        text += `• ${v.name}: ${v.buyAmount}${v.batch === 'dia8' ? ' (Tanda 2)' : ''}\n`;
+        text += `[ ] ${v.name} -> ${v.buyAmount}${v.batch === 'dia8' ? ' (Tanda 2 Día 8)' : ''}\n`;
       });
       text += `\n`;
     }
@@ -144,12 +144,12 @@ export default function ShoppingPage() {
     if (despensa.length > 0) {
       text += `🍊 *FRUTAS Y DESPENSA:*\n`;
       despensa.forEach((d) => {
-        text += `• ${d.name}: ${d.buyAmount}\n`;
+        text += `[ ] ${d.name} -> ${d.buyAmount}\n`;
       });
       text += `\n`;
     }
 
-    text += `🇨🇴 _Recetario Quincenal Colombiano - Cenas que resuelven el almuerzo_`;
+    text += `🇨🇴 _Nuestro menú • Cocina inteligente para dos_`;
 
     const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
@@ -157,6 +157,13 @@ export default function ShoppingPage() {
 
   const filteredItems = allItems.filter((item) => {
     const isChecked = !!household.checkedItems[item.id]?.checked;
+
+    const matchesSearch =
+      !searchTerm.trim() ||
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.buyAmount.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (!matchesSearch) return false;
 
     if (selectedCategory === 'pendientes') {
       return !isChecked;
@@ -172,22 +179,26 @@ export default function ShoppingPage() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <TopHeader user={currentUser} />
+      <TopHeader
+        user={currentUser}
+        servingMultiplier={household.servingMultiplier || 1.0}
+        onRefresh={refreshState}
+      />
 
-      <main className="flex-1 px-4 py-4 space-y-4">
-        {/* Header & Progress Bar */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs">
+      <main className="flex-1 px-4 py-3.5 space-y-3.5">
+        {/* Header, Progress & Supermarket Mode Launch Button */}
+        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-bold">
                 <ShoppingCart className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-extrabold text-slate-900 leading-tight">
+                <h2 className="text-base font-black text-slate-900 leading-tight">
                   Mercado para 15 Días
                 </h2>
                 <p className="text-[11px] text-slate-500 font-medium">
-                  Calculado para 2 personas (14 cenas + 14 desayunos)
+                  2 personas • 14 cenas (4p) + 14 desayunos
                 </p>
               </div>
             </div>
@@ -211,11 +222,29 @@ export default function ShoppingPage() {
             </div>
           </div>
 
+          {/* Supermarket Mode CTA */}
+          <button
+            onClick={() => setIsSupermarketMode(true)}
+            className="w-full mt-2 py-2.5 px-3 bg-gradient-to-r from-slate-900 to-brand-950 hover:from-slate-800 hover:to-brand-900 text-white rounded-2xl flex items-center justify-between shadow-xs transition-all active:scale-[0.99]"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-brand-500 text-slate-950 flex items-center justify-center">
+                <ShoppingBag className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs font-extrabold tracking-wide">
+                Activar Modo Supermercado
+              </span>
+            </div>
+            <span className="text-[11px] text-brand-300 font-bold">
+              Una mano →
+            </span>
+          </button>
+
           {/* Progress bar */}
           <div className="mt-4">
             <div className="flex items-center justify-between text-xs mb-1.5 font-semibold">
               <span className="text-slate-700">
-                Progreso de compra: <strong>{completedCount} de {totalCount}</strong>
+                Progreso: <strong>{completedCount} de {totalCount} comprados</strong>
               </span>
               <span className="text-brand-700 font-extrabold">
                 {progressPercent}%
@@ -229,25 +258,34 @@ export default function ShoppingPage() {
             </div>
           </div>
 
+          {/* Budget & Equivalences Banner */}
           <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-            <span>🇨🇴 1 libra colombiana = 500 g</span>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleShareWhatsApp}
-                className="font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                WhatsApp
-              </button>
-              <button
-                onClick={() => setIsAddModalOpen(true)}
-                className="font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Añadir ítem
-              </button>
-            </div>
+            <span className="flex items-center gap-1 font-semibold text-slate-700">
+              <DollarSign className="w-3.5 h-3.5 text-brand-600 -mr-1" />
+              Presupuesto est.: ~$195.000 COP
+            </span>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Añadir ítem
+            </button>
           </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <Search className="w-4 h-4" />
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar producto en la lista (pollo, papa, leche...)"
+            className="w-full bg-white border border-slate-200/80 rounded-2xl pl-10 pr-3.5 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-2xs"
+          />
         </div>
 
         {/* Tips de Organización Acordeón */}
@@ -397,6 +435,16 @@ export default function ShoppingPage() {
           )}
         </div>
       </main>
+
+      {/* Supermarket Mode Fullscreen View */}
+      {isSupermarketMode && (
+        <SupermarketModeModal
+          items={allItems}
+          checkedItems={household.checkedItems}
+          onToggleItem={handleToggleItem}
+          onClose={() => setIsSupermarketMode(false)}
+        />
+      )}
 
       {/* Modal para Añadir Producto Personalizado */}
       {isAddModalOpen && (

@@ -26,8 +26,13 @@ import {
   X,
   Upload,
   User as UserIcon,
-  ShieldCheck
+  ShieldCheck,
+  StickyNote,
+  Trash2,
+  Plus
 } from 'lucide-react';
+import { FridgeNotesModal } from '@/components/FridgeNotesModal';
+import { deleteFridgeNote } from '@/lib/storage';
 
 export default function HogarPage() {
   const router = useRouter();
@@ -38,6 +43,7 @@ export default function HogarPage() {
   // Modals state
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isFridgeNotesOpen, setIsFridgeNotesOpen] = useState(false);
 
   // Edit Profile Form State
   const [editName, setEditName] = useState('');
@@ -347,6 +353,90 @@ export default function HogarPage() {
             })}
           </div>
         </div>
+
+        {/* Tablero de la Nevera (Notas compartidas) */}
+        <div className="bg-amber-50/60 rounded-3xl p-5 border border-amber-200/80 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <StickyNote className="w-4 h-4 text-amber-600" />
+              <h3 className="text-sm font-bold text-amber-950">
+                Tablero de la Nevera
+              </h3>
+            </div>
+            <button
+              onClick={() => setIsFridgeNotesOpen(true)}
+              className="text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl shadow-xs transition-colors flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Pegar Notita
+            </button>
+          </div>
+
+          <p className="text-[11px] text-amber-800/80 leading-relaxed">
+            Mensajes rápidos, recordatorios del almuerzo o notas cariñosas para los miembros del hogar.
+          </p>
+
+          <div className="space-y-2 pt-1">
+            {(!household.fridgeNotes || household.fridgeNotes.length === 0) ? (
+              <div className="text-center py-5 bg-white/70 rounded-2xl border border-dashed border-amber-300">
+                <p className="text-xs text-amber-700 font-medium">
+                  No hay notitas pegadas en la nevera todavía.
+                </p>
+                <button
+                  onClick={() => setIsFridgeNotesOpen(true)}
+                  className="mt-2 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-lg transition-colors"
+                >
+                  ¡Sé el primero en dejar una!
+                </button>
+              </div>
+            ) : (
+              household.fridgeNotes.map((note) => {
+                const colorClasses =
+                  note.color === 'pink'
+                    ? 'bg-rose-100 border-rose-200 text-rose-950'
+                    : note.color === 'blue'
+                    ? 'bg-sky-100 border-sky-200 text-sky-950'
+                    : note.color === 'green'
+                    ? 'bg-emerald-100 border-emerald-200 text-emerald-950'
+                    : 'bg-amber-100 border-amber-200 text-amber-950';
+
+                return (
+                  <div
+                    key={note.id}
+                    className={`p-3 rounded-2xl border ${colorClasses} shadow-2xs relative group`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-xs font-medium leading-snug flex-1">
+                        {note.text}
+                      </p>
+                      <button
+                        onClick={() => {
+                          deleteFridgeNote(note.id);
+                          setHousehold(getHouseholdState());
+                        }}
+                        className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
+                        title="Despegar notita"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-black/5 text-[10px] opacity-70">
+                      <span>{note.authorName}</span>
+                      <span>
+                        {new Date(note.createdAt).toLocaleDateString('es-CO', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </main>
 
       {/* Modal para Editar Perfil (Nombre y Foto) */}
@@ -548,6 +638,17 @@ export default function HogarPage() {
           </div>
         </div>
       )}
+
+      <FridgeNotesModal
+        isOpen={isFridgeNotesOpen}
+        notes={household.fridgeNotes || []}
+        currentUserName={currentUser?.name || 'Hogar'}
+        onClose={() => {
+          setIsFridgeNotesOpen(false);
+          setHousehold(getHouseholdState());
+        }}
+        onUpdateNotes={() => setHousehold(getHouseholdState())}
+      />
 
       <BottomNav pendingMarketCount={pendingMarketCount} />
     </div>

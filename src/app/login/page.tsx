@@ -88,7 +88,7 @@ export default function LoginPage() {
           <Sparkles className="w-8 h-8" />
         </div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-          Recetario Quincenal
+          Nuestro menú
         </h1>
         <p className="text-xs text-slate-500 font-medium mt-1 max-w-xs mx-auto">
           Cenas que resuelven el almuerzo del día siguiente para 2 personas

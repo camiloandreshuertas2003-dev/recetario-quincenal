@@ -1,11 +1,11 @@
 {
-  "name": "Recetario Quincenal Colombiano",
-  "short_name": "Recetario",
-  "description": "Plan quincenal de cenas que dejan listo el almuerzo del día siguiente",
+  "name": "Nuestro menú",
+  "short_name": "Nuestro menú",
+  "description": "Plan quincenal de comidas colombianas para dos personas: cenas que resuelven el almuerzo",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#16a34a",
+  "background_color": "#0f172a",
+  "theme_color": "#15803d",
   "icons": [
     {
       "src": "/icon-192.png",

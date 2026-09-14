@@ -29,6 +29,10 @@ export default function RecipesPage() {
   useEffect(() => {
     setCurrentUser(getCurrentSession());
     setHousehold(getHouseholdState());
+
+    const handleState = () => setHousehold(getHouseholdState());
+    window.addEventListener('recetario_state_changed', handleState);
+    return () => window.removeEventListener('recetario_state_changed', handleState);
   }, []);
 
   const filteredRecipes = RECIPES.filter((recipe) => {
@@ -54,7 +58,11 @@ export default function RecipesPage() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <TopHeader user={currentUser} />
+      <TopHeader
+        user={currentUser}
+        servingMultiplier={household.servingMultiplier || 1.0}
+        onRefresh={() => setHousehold(getHouseholdState())}
+      />
 
       <main className="flex-1 px-4 py-4 space-y-4">
         {/* Page Title Header */}
@@ -149,7 +157,7 @@ export default function RecipesPage() {
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3" />
-                      {recipe.yieldServings} porciones
+                      {Math.round(recipe.yieldServings * (household.servingMultiplier || 1.0))} porciones
                     </span>
                   </div>
                 </div>
@@ -185,6 +193,7 @@ export default function RecipesPage() {
 
       <RecipeModal
         recipe={selectedRecipe}
+        servingMultiplier={household.servingMultiplier || 1.0}
         onClose={() => setSelectedRecipe(null)}
       />
 
