@@ -29,12 +29,13 @@ Aplicación web móvil (Progressive Web App - PWA) diseñada para parejas o comp
 ---
 
 ## 🚀 Despliegue en Vercel
+- Repositorio oficial: [https://github.com/camiloandreshuertas2003-dev/recetario-quincenal](https://github.com/camiloandreshuertas2003-dev/recetario-quincenal)
+- Despliegue en vivo: [https://optimistic-kepler.vercel.app](https://optimistic-kepler.vercel.app)
 
-1. El repositorio está configurado para Next.js con soporte estático y serverless.
-2. Puedes desplegarlo directamente en [Vercel](https://vercel.com):
-   - Haz clic en **Add New...** -> **Project**.
-   - Conecta tu cuenta de GitHub y selecciona este repositorio `recetario-quincenal`.
-   - Vercel detectará Next.js automáticamente. Haz clic en **Deploy**.
+Puedes desplegarlo o sincronizarlo en [Vercel](https://vercel.com):
+1. Haz clic en **Add New...** -> **Project** en tu cuenta de Vercel.
+2. Selecciona el repositorio `recetario-quincenal` de tu cuenta de GitHub.
+3. Haz clic en **Deploy**.
 
 ---
 
