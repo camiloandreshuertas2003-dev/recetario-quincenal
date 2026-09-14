@@ -31,7 +31,9 @@ import {
   Calendar,
   Flame,
   ArrowRight,
-  Utensils
+  Utensils,
+  ShieldCheck,
+  Salad
 } from 'lucide-react';
 
 export default function Home() {
@@ -109,12 +111,12 @@ export default function Home() {
       return {
         dayNumber: currentDay,
         weekNumber: weekNumber,
-        title: `Día ${currentDay}: Plan Personalizado`,
+        title: `Día ${currentDay}: Plan Extendido`,
         breakfast: {
           title: 'Desayuno exprés a elección',
           prepTime: '5 min',
           recipeId: 'desayuno-1',
-          quickNote: 'Yogur con avena o arepa con huevo.'
+          quickNote: 'Arepa con huevos pericos o avena remojada.'
         },
         lunch: {
           title: `Almuerzo empacado (Cena Día ${currentDay - 1})`,
@@ -172,177 +174,186 @@ export default function Home() {
         onRefresh={refreshState}
       />
 
-      <main className="flex-1 px-4 py-3.5 space-y-3.5">
+      <main className="flex-1 px-3 sm:px-5 py-4 space-y-4">
         {/* PWA Install Banner */}
         <PwaInstallBanner />
 
         {/* Smart 'Today' Highlight Card */}
         {todayPlan && (
-          <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-brand-950 text-white p-4 shadow-lg border border-brand-500/30 relative overflow-hidden">
+          <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-brand-950 text-white p-5 shadow-xl border border-brand-500/30 relative overflow-hidden">
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5 text-xs font-black text-brand-400 uppercase tracking-wider">
-                <Flame className="w-3.5 h-3.5 text-warm-400" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-brand-400 uppercase tracking-wider">
+                <Flame className="w-4 h-4 text-warm-400" />
                 <span>Hoy en Nuestro menú</span>
               </div>
-              <span className="text-[10px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-black bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-full">
                 Día {todayPlan.dayNumber} de {totalDays}
               </span>
             </div>
 
-            <h3 className="text-base sm:text-lg font-black leading-snug">
+            <h3 className="text-lg sm:text-xl font-black leading-snug">
               {todayPlan.dinner.title}
             </h3>
 
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] text-slate-300">
+            <div className="flex flex-wrap items-center gap-2.5 mt-2.5 text-xs sm:text-sm text-slate-300 font-medium">
               <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-slate-400" />
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
                 {todayPlan.dinner.prepTime}
               </span>
               <span>•</span>
-              <span className="text-brand-300 font-medium">
+              <span className="text-brand-300 font-bold">
                 4 porciones: 2 cena + 2 almuerzo
               </span>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between">
+            <div className="mt-4 pt-3 border-t border-slate-700/70 flex items-center justify-between flex-wrap gap-2">
               <button
                 onClick={() => handleOpenRecipe(todayPlan.dinner.recipeId)}
-                className="text-xs font-bold text-slate-950 bg-brand-400 hover:bg-brand-300 px-3 py-1.5 rounded-xl shadow-xs transition-colors flex items-center gap-1"
+                className="text-xs sm:text-sm font-black text-slate-950 bg-brand-400 hover:bg-brand-300 px-4 py-2 rounded-2xl shadow-xs transition-colors flex items-center gap-1.5"
               >
-                <Utensils className="w-3.5 h-3.5" />
+                <Utensils className="w-4 h-4" />
                 <span>Cocinar ahora</span>
               </button>
 
-              <span className="text-[11px] text-slate-400">
+              <span className="text-xs text-slate-400 font-semibold">
                 Almuerzo de mañana asegurado ✓
               </span>
             </div>
           </div>
         )}
 
-        {/* Banner Quincenal & Principios */}
-        <div className="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-emerald-900 text-white p-4 shadow-md relative overflow-hidden">
+        {/* Banner Quincenal & Principios Nutricionales */}
+        <div className="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-emerald-900 text-white p-5 shadow-lg relative overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-200 tracking-wider uppercase mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Plan Quincenal Colombiano</span>
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-extrabold text-brand-200 tracking-wider uppercase mb-1">
+              <Sparkles className="w-4 h-4" />
+              <span>Plan Profesional Quincenal</span>
             </div>
-            <h2 className="text-lg font-black leading-tight">
+            <h2 className="text-xl sm:text-2xl font-black leading-tight">
               Nuestro menú para 2 personas
             </h2>
-            <p className="text-xs text-brand-100 mt-1 leading-relaxed">
-              Cocina en la cena 4 porciones: comen 2 hoy y refrigeran 2 para el almuerzo del día siguiente. ¡Cero esfuerzo en la mañana!
+            <p className="text-sm text-brand-100 mt-1.5 leading-relaxed">
+              Cenas variadas que resuelven el almuerzo de mañana: pollo, res, pescado, camarones, huevo y leguminosas. ¡Cero cocina en la mañana!
             </p>
 
             {/* Micro stats & Calendar Start Date Toggle */}
-            <div className="mt-3 pt-2.5 border-t border-brand-600/60 flex items-center justify-between text-xs">
+            <div className="mt-4 pt-3 border-t border-brand-600/60 flex items-center justify-between text-xs sm:text-sm flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <CalendarCheck className="w-4 h-4 text-warm-300" />
-                <span>
-                  Progreso: <strong>{completedCount} de {totalDays} días</strong>
+                <span className="font-bold">
+                  {completedCount} de {totalDays} días cocinados ({progressPercent}%)
                 </span>
               </div>
 
               <button
                 onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-                className="flex items-center gap-1 font-bold bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-full text-[11px] transition-colors"
-                title="Ajustar fecha de inicio del menú"
+                className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl font-bold transition-colors"
               >
-                <Calendar className="w-3 h-3 text-warm-300" />
+                <Calendar className="w-3.5 h-3.5" />
                 <span>Fecha Inicio</span>
               </button>
             </div>
 
-            {/* Date Picker Drawer */}
+            {/* Start Date Picker Dropdown */}
             {isDatePickerOpen && (
-              <div className="mt-3 p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-xs">
-                <div className="flex items-center justify-between gap-2">
-                  <label className="font-semibold text-brand-100">
-                    Fecha de arranque de la quincena:
-                  </label>
-                  <input
-                    type="date"
-                    value={household.startDate || ''}
-                    onChange={handleStartDateChange}
-                    className="bg-white text-slate-900 px-2 py-1 rounded-xl text-xs font-bold font-mono focus:outline-none"
-                  />
-                </div>
-                <p className="text-[10px] text-brand-200 mt-1">
-                  Las fechas de cada día se sincronizan en todo el hogar.
-                </p>
+              <div className="mt-3 p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 animate-in slide-in-from-top-2">
+                <label className="block text-xs font-bold text-brand-200 mb-1">
+                  Selecciona la fecha en que inicias la quincena:
+                </label>
+                <input
+                  type="date"
+                  value={household.startDate || ''}
+                  onChange={handleStartDateChange}
+                  className="bg-white text-slate-900 px-3 py-2 rounded-xl text-sm font-bold w-full focus:outline-none"
+                />
               </div>
             )}
           </div>
-          <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none" />
+
+          <div className="absolute -right-8 -bottom-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
         </div>
 
-        {/* Acordeón: Rutina Diaria Recomendada */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-2xs">
+        {/* Guía Nutricional & Operativa (MinSalud / USDA) */}
+        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3">
           <button
             onClick={() => setIsRoutineOpen(!isRoutineOpen)}
-            className="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center justify-between text-left"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-warm-100 text-warm-800 flex items-center justify-center font-bold text-xs">
-                <Clock className="w-4 h-4" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-black">
+                <Salad className="w-5 h-5 text-brand-700" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-900">
-                  Rutina Diaria Recomendada
-                </h4>
-                <p className="text-[11px] text-slate-500">
-                  4 momentos para ahorrar hasta 2 horas al día
+                <h3 className="font-black text-slate-900 text-sm sm:text-base">
+                  Guía de Porciones y Seguridad
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  Regla de la mitad del plato (MinSalud) y empaque seguro (USDA)
                 </p>
               </div>
             </div>
-            {isRoutineOpen ? (
-              <ChevronUp className="w-4 h-4 text-slate-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            )}
+            <div className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+              {isRoutineOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </div>
           </button>
 
           {isRoutineOpen && (
-            <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-2 text-xs">
-              {DAILY_ROUTINE.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/60"
-                >
-                  <span className="font-bold text-brand-700 w-24 shrink-0">
-                    {item.moment}:
-                  </span>
-                  <div className="flex-1 text-slate-700">
-                    <p>{item.action}</p>
-                    <span className="text-[10px] text-amber-700 font-bold bg-amber-100/70 px-1.5 py-0.2 rounded inline-block mt-1">
-                      ⏱ {item.estimatedTime}
-                    </span>
-                  </div>
-                </div>
-              ))}
+            <div className="pt-3 border-t border-slate-100 space-y-3.5 text-xs sm:text-sm text-slate-700 animate-in fade-in leading-relaxed">
+              <div className="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-1.5">
+                <p className="font-extrabold text-emerald-950 flex items-center gap-1.5">
+                  <Salad className="w-4 h-4 text-emerald-700" />
+                  Estructura del Plato (MinSalud):
+                </p>
+                <p className="text-xs sm:text-sm text-emerald-950 font-medium">
+                  • <strong>Verduras:</strong> la mitad del plato, la parte más abundante.<br />
+                  • <strong>Proteína:</strong> pollo, res, pescado, camarón, huevo o leguminosas.<br />
+                  • <strong>Carbohidrato moderado:</strong> una sola fuente principal (arroz, papa, yuca, plátano, arepa o mazorca; no mezcles varios en exceso).<br />
+                  • <strong>Grasa y sabor:</strong> aguacate, limón, ajo, hierbas y hogao casero.
+                </p>
+              </div>
 
-              <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200/60 text-[11px] text-blue-900 space-y-1 mt-1">
-                <p>
-                  🥗 <strong>ICBF:</strong> Leguminosas al menos dos veces por semana con alimentos frescos y variados.
+              <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-1.5">
+                <p className="font-extrabold text-blue-950 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-blue-700" />
+                  Seguridad y Empaque (USDA FSIS):
                 </p>
-                <p>
-                  🧊 <strong>USDA FSIS:</strong> Refrigera antes de 2 horas en recipientes poco profundos con tapa.
+                <p className="text-xs sm:text-sm text-blue-950 font-medium">
+                  • Separa las 2 porciones de almuerzo antes de comenzar a cenar.<br />
+                  • Refrigera antes de 2 horas desde la cocción en recipientes herméticos poco profundos.<br />
+                  • Calientes juntos: arroz, carnes, pollo, pescado y guiso. Fríos y aparte: ensaladas, pepino y aguacate.<br />
+                  • Recalienta hasta que humee en el centro (referencia de seguridad: 74 °C).
                 </p>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <p className="font-extrabold text-slate-900 text-sm">Rutina Diaria Recomendada:</p>
+                {DAILY_ROUTINE.map((step, idx) => (
+                  <div key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
+                    <span className="font-black text-brand-700 text-sm min-w-[20px]">{idx + 1}.</span>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-slate-900 text-xs sm:text-sm">{step.moment}</span>
+                        <span className="text-xs text-slate-500 font-bold">{step.estimatedTime}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 mt-0.5">{step.action}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
 
-        {/* Selector de Semanas */}
+        {/* Week Selector Bar */}
         <WeekSelector
-          availableWeeks={availableWeeks}
           selectedWeek={selectedWeek}
+          availableWeeks={availableWeeks}
           onSelectWeek={setSelectedWeek}
-          onAddNewWeek={() => setIsAddWeekOpen(true)}
+          onOpenAddWeek={() => setIsAddWeekOpen(true)}
         />
 
-        {/* Listado de Días */}
-        <div className="space-y-3.5">
+        {/* Days List Grid */}
+        <div className="space-y-4">
           {filteredPlans.map((day) => (
             <DayCard
               key={day.dayNumber}
@@ -357,14 +368,14 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Modal de Detalle de Receta con Temporizador e IA */}
+      {/* Recipe Modal */}
       <RecipeModal
         recipe={selectedRecipe}
         servingMultiplier={household.servingMultiplier || 1.0}
         onClose={() => setSelectedRecipe(null)}
       />
 
-      {/* Modal para Añadir Semana */}
+      {/* Add Week Modal */}
       <AddWeekModal
         isOpen={isAddWeekOpen}
         onClose={() => setIsAddWeekOpen(false)}

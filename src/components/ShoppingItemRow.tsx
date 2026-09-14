@@ -48,9 +48,9 @@ export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center justify-between gap-1">
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
           <span
-            className={`text-xs sm:text-sm font-bold ${
+            className={`text-sm sm:text-base font-black ${
               isChecked ? 'line-through text-slate-400' : 'text-slate-900'
             }`}
           >
@@ -58,10 +58,10 @@ export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
           </span>
 
           <span
-            className={`text-xs font-extrabold px-2 py-0.5 rounded-md ${
+            className={`text-xs sm:text-sm font-extrabold px-3 py-1 rounded-xl ${
               isChecked
                 ? 'bg-slate-200/60 text-slate-500'
-                : 'bg-brand-100 text-brand-900 border border-brand-200/60'
+                : 'bg-brand-100 text-brand-950 border border-brand-300'
             }`}
           >
             Comprar: {item.buyAmount}
@@ -69,15 +69,15 @@ export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
         </div>
 
         {/* Calculated usage */}
-        <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-500">
-          <span className="flex items-center gap-1">
-            <Scale className="w-3 h-3 text-slate-400" />
-            Uso receta: <strong className="text-slate-700">{item.calculatedUsage}</strong>
+        <div className="flex flex-wrap items-center gap-2.5 mt-1.5 text-xs sm:text-sm text-slate-600 font-medium">
+          <span className="flex items-center gap-1.5">
+            <Scale className="w-3.5 h-3.5 text-slate-400" />
+            Uso receta: <strong className="text-slate-800">{item.calculatedUsage}</strong>
           </span>
 
           {item.batch === 'dia8' && (
-            <span className="bg-amber-100/80 text-amber-800 text-[10px] font-bold px-1.5 py-0.2 rounded flex items-center gap-0.5">
-              <CalendarClock className="w-2.5 h-2.5" />
+            <span className="bg-amber-100 text-amber-900 text-xs font-bold px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-300">
+              <CalendarClock className="w-3 h-3" />
               Tanda 2 (Día 8)
             </span>
           )}
@@ -86,8 +86,8 @@ export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
         {/* Custom notes or packing tips */}
         {item.notes && (
           <p
-            className={`text-[11px] mt-1 italic ${
-              isChecked ? 'text-slate-400' : 'text-slate-600'
+            className={`text-xs sm:text-sm mt-1.5 italic ${
+              isChecked ? 'text-slate-400' : 'text-slate-700 font-medium'
             }`}
           >
             💡 {item.notes}
@@ -96,9 +96,9 @@ export const ShoppingItemRow: React.FC<ShoppingItemRowProps> = ({
 
         {/* Who bought it */}
         {isChecked && (checkedBy || checkedAt) && (
-          <p className="text-[10px] font-medium text-emerald-700 mt-1 flex items-center gap-1">
-            <span>✓ Marcado por {checkedBy || 'un miembro'}</span>
-            {checkedAt && <span>a las {checkedAt}</span>}
+          <p className="text-xs font-bold text-emerald-800 mt-1.5 flex items-center gap-1">
+            <span>✓ Comprado por {checkedBy || 'un miembro'}</span>
+            {checkedAt && <span className="opacity-75 font-normal font-mono">({checkedAt})</span>}
           </p>
         )}
       </div>

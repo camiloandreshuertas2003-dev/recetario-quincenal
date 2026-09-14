@@ -315,19 +315,21 @@ export default function ShoppingPage() {
           </button>
 
           {isTipsOpen && (
-            <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-2.5">
+            <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-3">
               {ORGANIZATION_TIPS.map((tip, idx) => (
                 <div
                   key={idx}
-                  className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-xs space-y-1"
+                  className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 text-sm space-y-1.5"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-800">{tip.title}</span>
-                    <span className="text-[10px] font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200/50">
-                      {tip.badge}
-                    </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-slate-800 text-sm sm:text-base">{tip.title}</span>
+                    {tip.badge && (
+                      <span className="text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200/50">
+                        {tip.badge}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-slate-600 leading-relaxed">
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
                     {tip.description}
                   </p>
                 </div>

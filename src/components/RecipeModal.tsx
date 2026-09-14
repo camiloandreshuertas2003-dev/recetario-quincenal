@@ -82,10 +82,10 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-lg max-h-[94vh] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-6 duration-300">
         {/* Recipe Image & Overlay Controls */}
-        <div className="relative w-full h-48 sm:h-56 bg-slate-900 shrink-0">
+        <div className="relative w-full h-52 sm:h-60 bg-slate-900 shrink-0">
           {currentImg ? (
             <img
               src={currentImg}
@@ -98,31 +98,31 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
           {/* Close button */}
           <button
             onClick={onClose}
             className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/90 text-white rounded-full backdrop-blur-md transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
 
           {/* Top action pills */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5">
+          <div className="absolute top-3 left-3 flex items-center gap-2">
             <button
               onClick={handleRecreateWithAi}
               disabled={isAiGenerating}
-              className="bg-white/95 hover:bg-white text-slate-800 text-[11px] font-bold px-2.5 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1.5"
+              className="bg-white/95 hover:bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1.5"
             >
               {isAiGenerating ? (
                 <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-600" />
+                  <RefreshCw className="w-4 h-4 animate-spin text-brand-600" />
                   <span>Generando con IA...</span>
                 </>
               ) : (
                 <>
-                  <Wand2 className="w-3.5 h-3.5 text-brand-600" />
+                  <Wand2 className="w-4 h-4 text-brand-600" />
                   <span>Recrear con IA</span>
                 </>
               )}
@@ -130,22 +130,22 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
 
             <button
               onClick={() => setShowTimer(!showTimer)}
-              className={`text-[11px] font-bold px-2.5 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1 ${
+              className={`text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1 ${
                 showTimer
-                  ? 'bg-amber-500 text-slate-950'
+                  ? 'bg-amber-500 text-slate-950 font-black'
                   : 'bg-black/60 text-white hover:bg-black/80'
               }`}
             >
-              <Flame className="w-3.5 h-3.5 text-warm-300" />
+              <Flame className="w-4 h-4 text-warm-300" />
               <span>Temporizador</span>
             </button>
           </div>
 
           {/* Bottom Title on Image */}
           <div className="absolute bottom-3 left-4 right-4 text-white">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span
-                className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
+                className={`text-xs font-black px-2.5 py-0.5 rounded-md ${
                   recipe.category === 'cena'
                     ? 'bg-emerald-500 text-white'
                     : recipe.category === 'almuerzo'
@@ -155,16 +155,16 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
               >
                 {getCategoryLabel()}
               </span>
-              <span className="text-[11px] bg-white/20 backdrop-blur-md text-white font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
-                <Clock className="w-3 h-3" />
+              <span className="text-xs bg-white/20 backdrop-blur-md text-white font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
                 {recipe.prepTime}
               </span>
-              <span className="text-[11px] bg-white/20 backdrop-blur-md text-white font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
-                <Users className="w-3 h-3" />
-                {scaledPortions}p
+              <span className="text-xs bg-white/20 backdrop-blur-md text-white font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                <Users className="w-3.5 h-3.5" />
+                {scaledPortions} porciones
               </span>
             </div>
-            <h2 className="text-base sm:text-lg font-black leading-tight drop-shadow-md">
+            <h2 className="text-lg sm:text-xl font-black leading-tight drop-shadow-md">
               {recipe.title}
             </h2>
           </div>
@@ -181,24 +181,37 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
         )}
 
         {/* Modal Body with Scroll */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-5 text-sm text-slate-700">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-slate-800">
           {/* AI Banner feedback if generated */}
           {aiGeneratedSuccess && (
-            <div className="p-2.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-900 text-xs flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
+            <div className="p-3 rounded-2xl bg-brand-50 border border-brand-200 text-brand-950 text-sm flex items-start gap-2">
+              <Sparkles className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Foto culinaria recreada con IA para este plato:</p>
-                <p className="text-[11px] text-brand-800/80 italic mt-0.5">
+                <p className="text-xs text-brand-800/80 italic mt-0.5">
                   "{recipe.aiPrompt || recipe.title}"
                 </p>
               </div>
             </div>
           )}
 
+          {/* Por qué llena / Saciedad */}
+          {recipe.whyFilling && (
+            <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950 space-y-1">
+              <h4 className="font-black text-sm flex items-center gap-2 text-amber-900">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                Por qué llena (Aporte de Saciedad)
+              </h4>
+              <p className="text-sm leading-relaxed font-medium">
+                {recipe.whyFilling}
+              </p>
+            </div>
+          )}
+
           {recipe.carbType && (
-            <div className="text-xs text-amber-900 font-medium bg-amber-50/90 px-3 py-2 rounded-xl border border-amber-200/60 flex items-center justify-between">
-              <span>🌾 Carbohidrato principal: <strong>{recipe.carbType}</strong></span>
-              <span className="text-[10px] bg-white text-amber-800 font-bold px-2 py-0.5 rounded-md border border-amber-200">
+            <div className="text-sm text-amber-950 font-medium bg-amber-50/90 px-4 py-2.5 rounded-2xl border border-amber-200 flex items-center justify-between">
+              <span>🌾 Carbohidrato: <strong className="font-extrabold">{recipe.carbType}</strong></span>
+              <span className="text-xs bg-white text-amber-900 font-black px-2.5 py-0.5 rounded-md border border-amber-200">
                 Controlado
               </span>
             </div>
@@ -206,13 +219,13 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
 
           {/* External video and recipe links */}
           {(recipe.videoUrl || recipe.recipeUrl) && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2.5">
               {recipe.videoUrl && (
                 <a
                   href={recipe.videoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200 transition-colors"
+                  className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-sm font-bold rounded-2xl border border-rose-200 transition-colors shadow-2xs"
                 >
                   <Video className="w-4 h-4 text-rose-600" />
                   Ver Video Tutorial
@@ -223,9 +236,9 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
                   href={recipe.recipeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl border border-slate-200 transition-colors"
+                  className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-2.5 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-bold rounded-2xl border border-slate-200 transition-colors shadow-2xs"
                 >
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-4 h-4" />
                   {recipe.recipeSourceName || 'Receta Escrita'}
                 </a>
               )}
@@ -234,15 +247,15 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
 
           {/* Ingredientes con Checkbox interactivo y Escalado dinámico */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-slate-900 flex items-center gap-1.5 text-xs uppercase tracking-wider">
-                <UtensilsCrossed className="w-4 h-4 text-brand-600" />
+            <div className="flex items-center justify-between mb-2.5">
+              <h3 className="font-black text-slate-900 flex items-center gap-2 text-sm sm:text-base uppercase tracking-wider">
+                <UtensilsCrossed className="w-5 h-5 text-brand-600" />
                 Ingredientes en crudo ({scaledPortions} porciones)
               </h3>
-              <span className="text-[11px] text-slate-400">Toca para tachar</span>
+              <span className="text-xs text-slate-500 font-semibold">Toca para tachar</span>
             </div>
 
-            <div className="grid grid-cols-1 gap-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/70">
+            <div className="grid grid-cols-1 gap-2 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
               {recipe.ingredients.map((ing, i) => {
                 const isChecked = !!checkedIngredients[ing.name];
                 const displayAmount = scaleAmount(ing.amount, servingMultiplier);
@@ -252,15 +265,15 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
                     type="button"
                     key={i}
                     onClick={() => toggleIngredient(ing.name)}
-                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-left transition-all ${
+                    className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-left transition-all ${
                       isChecked
-                        ? 'bg-slate-200/60 text-slate-400 line-through'
-                        : 'hover:bg-white text-slate-800'
+                        ? 'bg-slate-200/70 text-slate-400 line-through'
+                        : 'hover:bg-white text-slate-900 bg-white/60 shadow-2xs'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       <div
-                        className={`w-4 h-4 rounded border flex items-center justify-center text-[10px] ${
+                        className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs font-bold ${
                           isChecked
                             ? 'bg-brand-600 border-brand-600 text-white'
                             : 'border-slate-300 bg-white'
@@ -268,10 +281,10 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
                       >
                         {isChecked && '✓'}
                       </div>
-                      <span className="font-medium text-xs sm:text-sm">{ing.name}</span>
+                      <span className="font-semibold text-sm sm:text-base">{ing.name}</span>
                     </div>
                     <span
-                      className={`text-xs font-bold ml-2 ${
+                      className={`text-sm font-extrabold ml-2 shrink-0 ${
                         isChecked ? 'text-slate-400' : 'text-brand-800 font-mono'
                       }`}
                     >
@@ -283,41 +296,41 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
             </div>
           </div>
 
-          {/* Preparación paso a paso con Casillas de verificación */}
+          {/* Preparación paso a paso */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-slate-900 flex items-center gap-1.5 text-xs uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 text-warm-600" />
+            <div className="flex items-center justify-between mb-2.5">
+              <h3 className="font-black text-slate-900 flex items-center gap-2 text-sm sm:text-base uppercase tracking-wider">
+                <Sparkles className="w-5 h-5 text-warm-600" />
                 Paso a paso de cocción
               </h3>
-              <span className="text-[11px] text-slate-400">Toca el paso completado</span>
+              <span className="text-xs text-slate-500 font-semibold">Toca el paso completado</span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {recipe.steps.map((step, idx) => {
                 const isStepDone = !!completedSteps[idx];
                 return (
                   <div
                     key={idx}
                     onClick={() => toggleStep(idx)}
-                    className={`flex items-start gap-3 p-3 rounded-2xl border transition-all cursor-pointer ${
+                    className={`flex items-start gap-3.5 p-3.5 rounded-2xl border transition-all cursor-pointer ${
                       isStepDone
-                        ? 'bg-emerald-50/50 border-emerald-200 text-emerald-950 opacity-85'
-                        : 'bg-white border-slate-100 hover:border-slate-200 shadow-2xs'
+                        ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950 opacity-85'
+                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
                     }`}
                   >
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shrink-0 mt-0.5 ${
                         isStepDone
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-100 text-slate-700'
+                          : 'bg-slate-100 text-slate-800'
                       }`}
                     >
                       {isStepDone ? '✓' : idx + 1}
                     </div>
                     <p
-                      className={`text-xs sm:text-sm leading-relaxed flex-1 ${
-                        isStepDone ? 'line-through text-slate-500' : 'text-slate-700'
+                      className={`text-sm sm:text-base leading-relaxed flex-1 ${
+                        isStepDone ? 'line-through text-slate-400' : 'text-slate-800 font-medium'
                       }`}
                     >
                       {step}
@@ -328,31 +341,31 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
             </div>
           </div>
 
-          {/* Tips de empaque y seguridad alimentaria */}
+          {/* Tips de empaque y seguridad */}
           {recipe.packingInstructions && (
-            <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/70 text-amber-950">
-              <h4 className="font-bold text-xs flex items-center gap-1.5 text-amber-900 mb-1">
-                <ShieldAlert className="w-4 h-4 text-amber-600" />
+            <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-950 space-y-1.5">
+              <h4 className="font-black text-sm flex items-center gap-2 text-amber-900">
+                <ShieldAlert className="w-5 h-5 text-amber-600" />
                 Seguridad y Empaque para el Almuerzo
               </h4>
-              <p className="text-xs leading-relaxed">
+              <p className="text-sm leading-relaxed font-medium">
                 {recipe.packingInstructions}
               </p>
-              <p className="text-[11px] text-amber-800/80 mt-1 font-medium">
-                Regla USDA/FSIS: Divide de inmediato al terminar de cocinar. Refrigera antes de 2 horas en recipientes poco profundos con tapa.
+              <p className="text-xs text-amber-900/80 font-bold pt-1 border-t border-amber-200/60">
+                Normativa MinSalud & USDA: Refrigera antes de 2 horas desde la cocción en recipientes herméticos poco profundos. Recalienta a 74 °C en el centro.
               </p>
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
-          <span className="text-xs text-slate-500 font-medium">
+        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+          <span className="text-xs sm:text-sm text-slate-600 font-bold">
             {Object.values(checkedIngredients).filter(Boolean).length} de {recipe.ingredients.length} ingredientes listos
           </span>
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+            className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-black rounded-2xl shadow-xs transition-colors"
           >
             Listo, cerrar
           </button>

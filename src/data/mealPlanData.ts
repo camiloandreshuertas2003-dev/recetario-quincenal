@@ -10,25 +10,25 @@ export interface RoutineStep {
 export const DAILY_ROUTINE: RoutineStep[] = [
   {
     moment: 'Noche anterior',
-    action: 'Preparar el desayuno frío si aplica (yogur con avena hidratándose o avena remojada).',
+    action: 'Preparar la avena remojada o pasar del congelador a la nevera la proteína del día siguiente. ¡Nunca descongeles sobre la mesa!',
     estimatedTime: '3–5 min',
     iconName: 'Moon'
   },
   {
-    moment: 'Mañana',
-    action: 'Preparar o tomar el desayuno rápido; sacar de la nevera el almuerzo ya empacado de anoche.',
+    moment: 'Mañana al salir',
+    action: 'Preparar el desayuno exprés nutritivo (7–10 min). Sacar de la nevera las 2 porciones de almuerzo ya empacadas anoche.',
     estimatedTime: '5–10 min',
     iconName: 'Sun'
   },
   {
     moment: 'Al llegar del trabajo',
-    action: 'Cocinar la cena del día rindiendo 4 porciones completas (2 para cenar hoy + 2 para mañana).',
-    estimatedTime: '30–50 min',
+    action: 'Cocinar la cena variada (4 porciones completas). 2 porciones para cenar rico hoy + 2 porciones para el almuerzo de mañana.',
+    estimatedTime: '25–45 min',
     iconName: 'Utensils'
   },
   {
-    moment: 'Después de cenar',
-    action: 'Dejar reposar unos minutos, tapar y refrigerar las 2 porciones en recipientes herméticos.',
+    moment: 'Antes de cenar',
+    action: 'Separar los 2 recipientes del almuerzo antes de empezar a comer. Refrigerar antes de 2 horas según normativa MinSalud/USDA.',
     estimatedTime: '3 min',
     iconName: 'PackageCheck'
   }
@@ -39,219 +39,225 @@ export const MEAL_PLAN_14_DAYS: DayMealPlan[] = [
   {
     dayNumber: 1,
     weekNumber: 1,
-    title: 'Día 1: Arranque de Quincena',
+    title: 'Día 1: Arranque del Plan',
     breakfast: {
-      title: 'Yogur con avena, papaya y maní',
-      prepTime: '2–3 min',
+      title: 'Arepa con huevos pericos, queso y fruta',
+      prepTime: '8–10 min',
       recipeId: 'desayuno-1',
-      quickNote: 'Deja la avena con yogur desde anoche en la nevera; en la mañana añade papaya fresca y maní.'
+      quickNote: 'Arepa con pericos rápidos de tomate y cebolla, 40 g de queso campesino y fruta fresca.'
     },
     lunch: {
       title: 'Sándwich de huevo rápido (o porción previa)',
       sourceDinnerDay: null,
       isFreshOrPacked: 'Preparación inicial (5 min)',
-      packingTip: 'Como no hay cena previa que haya dejado almuerzo, prepara un sándwich de huevo en 5 min o lleva una porción previamente congelada. Desde esta noche se activa el ciclo.',
+      packingTip: 'Como no hay cena previa que haya dejado almuerzo, prepara este sándwich en 5 min o lleva una porción previamente congelada. Desde esta noche se activa el ciclo continuo.',
       recipeId: 'almuerzo-dia-1'
     },
     dinner: {
-      title: 'Sudado de pollo con arroz pequeño y ensalada',
+      title: 'Muslos de pollo al horno con verduras y arroz',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '35–40 min',
+      prepTime: '40 min',
       recipeId: 'cena-dia-1',
-      carbohydrate: 'Arroz moderado (120 g crudo) + Ahuyama',
-      keyTip: 'Divide en caliente: 2 platos a la mesa y 2 refractarias tapadas a la nevera.'
+      carbohydrate: 'Papa criolla y Arroz moderado',
+      keyTip: 'Separa los 2 almuerzos antes de cenar. Guarda pollo, papas y arroz juntos.'
     },
     nextDayLunch: {
-      title: 'Sudado de pollo con ahuyama y arroz',
-      note: 'Listo en la nevera de la cena de hoy. Lleva la ensalada aparte.'
+      title: 'Muslos de pollo al horno con verduras y arroz',
+      note: 'Listo en nevera. Al recalentar en el trabajo, añade unas gotas de limón fresco.'
     }
   },
+
   {
     dayNumber: 2,
     weekNumber: 1,
     title: 'Día 2: Leguminosas y Energía',
     breakfast: {
-      title: 'Arepa congelada con pericos rápidos',
-      prepTime: '8–10 min',
+      title: 'Avena remojada con banano, maní y huevo cocido',
+      prepTime: '2–3 min',
       recipeId: 'desayuno-2',
-      quickNote: 'Sofrito de tomate y cebolla rápido con 4 huevos y arepa tostada.'
+      quickNote: 'Base dejada en la nevera desde anoche. Solo añade banano en rodajas, maní y el huevo cocido.'
     },
     lunch: {
-      title: 'Sudado de pollo con ahuyama y arroz',
+      title: 'Muslos de pollo al horno con verduras y arroz',
       sourceDinnerDay: 1,
       isFreshOrPacked: 'Empacado anoche (Cena Día 1)',
-      packingTip: 'Solo sacar de la nevera y calentar en el microondas en el trabajo.'
+      packingTip: 'Pollo y verduras asadas con arroz. Recalienta bien en el trabajo (74 °C).'
     },
     dinner: {
-      title: 'Lentejas con verduras, arroz pequeño, huevo y pepino',
+      title: 'Lentejas criollas con huevo, arroz pequeño y ensalada',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '40–45 min',
+      prepTime: '35 min',
       recipeId: 'cena-dia-2',
-      carbohydrate: 'Papa + Arroz pequeño (100 g crudo)',
-      keyTip: 'Ricas en hierro y proteína vegetal según guía ICBF.'
+      carbohydrate: 'Papa en cubos y Arroz pequeño',
+      keyTip: 'Lentejas ricas en hierro con hogao, papa y huevo duro. Empaca el pepino fresco aparte.'
     },
     nextDayLunch: {
-      title: 'Lentejas con arroz, verduras y huevo cocido',
-      note: 'Empacado anoche con huevo. Pepino fresco llevado aparte.'
+      title: 'Lentejas criollas con huevo duro y arroz',
+      note: 'Lentejas jugosas con huevo duro. El pepino cohombro fresco va en recipiente independiente.'
     }
   },
+
   {
     dayNumber: 3,
     weekNumber: 1,
-    title: 'Día 3: Salteado Rápido',
+    title: 'Día 3: Carne de Res y Salsa Criolla',
     breakfast: {
-      title: 'Avena remojada con banano y canela',
-      prepTime: '2 min',
+      title: 'Arepa, huevo, queso y papaya',
+      prepTime: '7–8 min',
       recipeId: 'desayuno-3',
-      quickNote: 'Hidratada desde anoche en leche con canela. Solo cortar banano.'
+      quickNote: 'Arepa doradita, huevo al gusto, 50 g de queso campesino y cubos de papaya dulce.'
     },
     lunch: {
-      title: 'Lentejas con verduras, arroz y huevo',
+      title: 'Lentejas criollas con huevo, arroz y pepino',
       sourceDinnerDay: 2,
       isFreshOrPacked: 'Empacado anoche (Cena Día 2)',
-      packingTip: 'Recalienta 2-3 minutos en microondas; añade pepino fresco.'
+      packingTip: 'Lentejas caseras con huevo y arroz. Agrega el pepino fresco al momento de comer.'
     },
     dinner: {
-      title: 'Pollo salteado con verduras y arepa',
+      title: 'Bistec encebollado con arroz y ensalada de repollo',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '25–30 min',
+      prepTime: '30 min',
       recipeId: 'cena-dia-3',
-      carbohydrate: 'Arepas de maíz (4 unidades pequeñas)',
-      keyTip: 'Salteado en wok a fuego alto; verduras crujientes y llenas de color.'
+      carbohydrate: 'Arroz blanco moderado',
+      keyTip: 'Sella los bistecs rápido para que no se resequen y termínalos dentro de la salsa criolla.'
     },
     nextDayLunch: {
-      title: 'Pollo salteado con verduras y arepa',
-      note: 'Empaca el pollo con verduras en contenedor y la arepa en servilleta.'
+      title: 'Bistec encebollado con salsa criolla y arroz',
+      note: 'Carne jugosa bañada en salsa con arroz. La ensalada de repollo y zanahoria viaja aparte.'
     }
   },
+
   {
     dayNumber: 4,
     weekNumber: 1,
-    title: 'Día 4: Garbanzos Caseros',
+    title: 'Día 4: Pescado Blanco y Papas al Vapor',
     breakfast: {
-      title: 'Huevos cocidos, queso, aguacate y fruta',
-      prepTime: '3–5 min',
+      title: 'Avena caliente con banano, maní y queso',
+      prepTime: '8–10 min',
       recipeId: 'desayuno-4',
-      quickNote: 'Usa huevos ya cocidos de la tanda semanal. Pela y sirve con queso y aguacate.'
+      quickNote: 'Avena cocida en leche con canela, rodajas de banano, maní crujiente y queso campesino.'
     },
     lunch: {
-      title: 'Pollo salteado con verduras y arepa',
+      title: 'Bistec encebollado con salsa criolla y arroz',
       sourceDinnerDay: 3,
       isFreshOrPacked: 'Empacado anoche (Cena Día 3)',
-      packingTip: 'Calienta el salteado y tuesta ligeramente la arepa.'
+      packingTip: 'Recalienta la carne con su salsita sobre el arroz. Acompaña con la ensalada fresca.'
     },
     dinner: {
-      title: 'Garbanzos con ahuyama, arroz pequeño y repollo',
+      title: 'Sudado de pescado con papa y ensalada fresca',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '45–50 min',
+      prepTime: '30 min',
       recipeId: 'cena-dia-4',
-      carbohydrate: 'Arroz pequeño (100 g crudo) + Garbanzo',
-      keyTip: 'Machaca una taza de garbanzo contra la olla para espesar con cremosidad natural.'
+      carbohydrate: 'Papa en rodajas al guiso',
+      keyTip: 'Coloca el pescado sobre la cama de papas y guiso; no revuelvas con cuchara para no romperlo.'
     },
     nextDayLunch: {
-      title: 'Garbanzos con ahuyama y arroz',
-      note: 'Empacado anoche. Lleva el repollo rebanado en recipiente aparte.'
+      title: 'Sudado de pescado con papa y salsa',
+      note: 'Usa recipiente rígido hermético. Recalienta a fuego o potencia media en el trabajo.'
     }
   },
+
   {
     dayNumber: 5,
     weekNumber: 1,
-    title: 'Día 5: Arroz con Pollo Criollo',
+    title: 'Día 5: Arroz con Pollo Clásico',
     breakfast: {
-      title: 'Yogur con fruta y maní',
-      prepTime: '2–3 min',
-      recipeId: 'desayuno-6',
-      quickNote: 'Rápido y ligero para cerrar la semana laboral.'
+      title: 'Calentado pequeño con huevo, queso y fruta',
+      prepTime: '8–10 min',
+      recipeId: 'desayuno-5',
+      quickNote: 'Aprovecha fríjoles o lentejas con arroz bien refrigerados, sofrito, huevo y fruta.'
     },
     lunch: {
-      title: 'Garbanzos con ahuyama, arroz y repollo',
+      title: 'Sudado de pescado con papas y salsa',
       sourceDinnerDay: 4,
       isFreshOrPacked: 'Empacado anoche (Cena Día 4)',
-      packingTip: 'Sabor potenciado tras asentar en la nevera.'
+      packingTip: 'Pescado blanco con papa criolla o pastusa. Acompaña con pepino o repollo fresco.'
     },
     dinner: {
-      title: 'Arroz con pollo cargado de verduras',
+      title: 'Arroz con pollo desmechado y verduras',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '40–45 min',
+      prepTime: '45 min',
       recipeId: 'cena-dia-5',
-      carbohydrate: 'Arroz con verduras (200 g crudo)',
-      keyTip: 'Plato único balanceado con arveja, habichuela, zanahoria y pimentón.'
+      carbohydrate: 'Arroz con verduras variadas',
+      keyTip: 'Usa el caldo del pollo colado para cocinar el arroz. Mucha zanahoria, habichuela y pimentón.'
     },
     nextDayLunch: {
-      title: 'Arroz con pollo cargado de verduras',
-      note: 'Las 2 porciones empacadas anoche listas para recalentar.'
+      title: 'Arroz con pollo desmechado y verduras',
+      note: 'Uno de los almuerzos más prácticos para calentar en oficina; conserva aroma y jugosidad.'
     }
   },
+
   {
     dayNumber: 6,
     weekNumber: 1,
-    title: 'Día 6: Cazuela Paisa Ligera',
+    title: 'Día 6: Tradición Colombiana y Aguacate',
     breakfast: {
-      title: 'Arepa ya hecha, queso y huevo',
+      title: 'Arepa con huevo, queso y fruta de temporada',
       prepTime: '7–8 min',
-      recipeId: 'desayuno-5',
-      quickNote: 'Arepa tostada con queso campesino derretido y huevo frito con poco aceite.'
+      recipeId: 'desayuno-6',
+      quickNote: 'Arepa tostada con huevo tierno, 50 g de queso campesino y fruta picada.'
     },
     lunch: {
-      title: 'Arroz con pollo con verduras',
+      title: 'Arroz con pollo desmechado y verduras',
       sourceDinnerDay: 5,
       isFreshOrPacked: 'Empacado anoche (Cena Día 5)',
-      packingTip: 'Recalentar en microondas; queda jugoso por el caldo casero.'
+      packingTip: 'Porción generosa de arroz con pollo y vegetales. Listo en 2 min de microondas.'
     },
     dinner: {
-      title: 'Fríjoles con ahuyama y plátano (sin arroz)',
+      title: 'Fríjoles con ahuyama, plátano y aguacate',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '50–60 min',
+      prepTime: '50 min',
       recipeId: 'cena-dia-6',
-      carbohydrate: 'Plátano verde + Fríjoles (Sin arroz)',
-      keyTip: 'Acompaña con repollo y aguacate fresco; carbohidrato completo sin necesidad de arroz.'
+      carbohydrate: 'Plátano verde y Ahuyama (Sin arroz)',
+      keyTip: 'Espesa el caldo machacando cubos de ahuyama contra la olla. No sirvas arroz este día.'
     },
     nextDayLunch: {
-      title: 'Fríjoles con ahuyama y plátano',
-      note: 'Empacado anoche. Corta medio aguacate fresco para acompañar.'
+      title: 'Fríjoles espesos con plátano y aguacate',
+      note: 'Fríjoles espesos en refractaria antiderrames. Lleva el aguacate en cuartos con limón aparte.'
     }
   },
+
   {
     dayNumber: 7,
     weekNumber: 1,
-    title: 'Día 7: Sopa Campesina de Pollo',
+    title: 'Día 7: Mariscos Especiales de Fin de Semana',
     breakfast: {
-      title: 'Avena remojada con fruta de temporada',
-      prepTime: '2 min',
-      recipeId: 'desayuno-3',
-      quickNote: 'Desayuno fresco para iniciar el domingo.'
+      title: 'Arepa con huevos pericos, queso y fruta',
+      prepTime: '8–10 min',
+      recipeId: 'desayuno-1',
+      quickNote: 'Pericos colombianos recién hechos con arepa caliente y fruta fresca de temporada.'
     },
     lunch: {
-      title: 'Fríjoles con ahuyama y plátano con aguacate',
+      title: 'Fríjoles con ahuyama, plátano y aguacate',
       sourceDinnerDay: 6,
       isFreshOrPacked: 'Empacado anoche (Cena Día 6)',
-      packingTip: 'Añadir 2 cucharadas de agua antes de calentar para devolver soltura.'
+      packingTip: 'Fríjoles criollos sin arroz. Agrega el aguacate fresco y repollo al momento de comer.'
     },
     dinner: {
-      title: 'Sopa de pollo con papa y yuca (sin arroz)',
+      title: 'Camarones al ajillo con verduras y arroz',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '40–45 min',
+      prepTime: '25 min',
       recipeId: 'cena-dia-7',
-      carbohydrate: 'Papa + Yuca + Ahuyama (Sin arroz)',
-      keyTip: 'Reconfortante caldo con tubérculos criollos y cilantro fresco.'
+      carbohydrate: 'Arroz blanco moderado',
+      keyTip: 'Saltea los camarones solo 1–2 min por lado. Saltea calabacín, zanahoria y pimentón al dente.'
     },
     nextDayLunch: {
-      title: 'Sopa de pollo con papa y yuca',
-      note: 'Usar recipiente hermético anti-derrame para llevar al trabajo.'
+      title: 'Camarones al ajillo con verduras y arroz',
+      note: 'Camarones tiernos con vegetales salteados. Recalienta solo 1 minuto en microondas.'
     }
   },
 
@@ -259,218 +265,224 @@ export const MEAL_PLAN_14_DAYS: DayMealPlan[] = [
   {
     dayNumber: 8,
     weekNumber: 2,
-    title: 'Día 8: Pollo Dorado con Ahuyama',
+    title: 'Día 8: Albóndigas y Puré Dorado',
     breakfast: {
-      title: 'Huevos pericos rápidos con arepa',
-      prepTime: '8–10 min',
+      title: 'Avena remojada con banano, maní y huevo cocido',
+      prepTime: '2–3 min',
       recipeId: 'desayuno-2',
-      quickNote: 'Inicia la segunda semana con energía tradicional colombiana.'
+      quickNote: 'Desayuno fresco listo en segundos. Proteína, fibra y energía para comenzar la semana.'
     },
     lunch: {
-      title: 'Sopa de pollo con papa y yuca',
+      title: 'Camarones al ajillo con verduras y arroz',
       sourceDinnerDay: 7,
       isFreshOrPacked: 'Empacado anoche (Cena Día 7)',
-      packingTip: 'Calienta en tazón hondo; caldo nutritivo y saciante.'
+      packingTip: 'Almuerzo gourmet de camarón y verduras. Calienta brevemente para mantener la terneza.'
     },
     dinner: {
-      title: 'Pollo con ahuyama, arroz pequeño y pepino',
+      title: 'Albóndigas criollas en salsa con puré de ahuyama',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '35–40 min',
+      prepTime: '40 min',
       recipeId: 'cena-dia-8',
-      carbohydrate: 'Arroz moderado (120 g crudo)',
-      keyTip: 'Destapar al final para que la salsa de ahuyama y hogao caramelice.'
+      carbohydrate: 'Puré de ahuyama suave',
+      keyTip: 'Forma 16 albóndigas parejas. Cocínalas en la salsa criolla y sirve sobre puré de ahuyama.'
     },
     nextDayLunch: {
-      title: 'Pollo con ahuyama y arroz pequeño',
-      note: 'Empacado anoche; lleva pepino fresco cortado con limón.'
+      title: 'Albóndigas criollas en salsa con puré de ahuyama',
+      note: 'Base de puré de ahuyama con 4 albóndigas y salsa por porción. Muy reconfortante.'
     }
   },
+
   {
     dayNumber: 9,
     weekNumber: 2,
-    title: 'Día 9: Lentejas con Plátano Maduro Asado',
+    title: 'Día 9: Garbanzos Criollos y Huevo',
     breakfast: {
-      title: 'Yogur con avena y papaya',
-      prepTime: '2–3 min',
-      recipeId: 'desayuno-1',
-      quickNote: 'Digestivo y veloz.'
+      title: 'Arepa, huevo, queso y papaya',
+      prepTime: '7–8 min',
+      recipeId: 'desayuno-3',
+      quickNote: 'Arepa caliente, huevo tierno, queso campesino y plato de papaya dulce.'
     },
     lunch: {
-      title: 'Pollo con ahuyama, arroz y pepino',
+      title: 'Albóndigas criollas en salsa con puré de ahuyama',
       sourceDinnerDay: 8,
       isFreshOrPacked: 'Empacado anoche (Cena Día 8)',
-      packingTip: 'Pollo jugoso con salsa natural de ahuyama.'
+      packingTip: 'Cuatro albóndigas jugosas con puré de ahuyama y salsa de arvejas y zanahorias.'
     },
     dinner: {
-      title: 'Lentejas con calabacín, huevo y plátano asado (sin arroz)',
+      title: 'Garbanzos con verduras, huevo y arroz pequeño',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '40–45 min',
+      prepTime: '45 min',
       recipeId: 'cena-dia-9',
-      carbohydrate: 'Plátano maduro asado (Sin arroz)',
-      keyTip: 'El contraste dulce del plátano maduro asado con las lentejas es insuperable.'
+      carbohydrate: 'Ahuyama y Arroz pequeño',
+      keyTip: 'Machaca una taza de garbanzos y ahuyama para espesar el caldo de forma natural.'
     },
     nextDayLunch: {
-      title: 'Lentejas con calabacín, huevo y plátano asado',
-      note: 'Empaca las lentejas con el huevo y el plátano a un costado.'
+      title: 'Garbanzos con verduras, huevo duro y arroz',
+      note: 'Garbanzos espesos con huevo y arroz en refractaria hermética; pepino fresco aparte.'
     }
   },
+
   {
     dayNumber: 10,
     weekNumber: 2,
-    title: 'Día 10: Pollo Desmechado con Hogao Criollo',
+    title: 'Día 10: Pollo Guisado en Presa Mixta',
     breakfast: {
-      title: 'Arepa ya hecha, queso y fruta',
-      prepTime: '7–8 min',
-      recipeId: 'desayuno-5',
-      quickNote: 'Arepa crujiente con queso campesino y mandarina.'
+      title: 'Avena caliente con banano, maní y queso',
+      prepTime: '8–10 min',
+      recipeId: 'desayuno-4',
+      quickNote: 'Avena tibia aromática con canela, banano maduro, maní y cubos de queso campesino.'
     },
     lunch: {
-      title: 'Lentejas con calabacín, huevo y plátano asado',
+      title: 'Garbanzos con verduras, huevo duro y arroz',
       sourceDinnerDay: 9,
       isFreshOrPacked: 'Empacado anoche (Cena Día 9)',
-      packingTip: 'Recalienta 2 min; no requiere cubiertos especiales.'
+      packingTip: 'Garbanzos criollos con huevo y arroz. Acompaña con las rodajas de pepino fresco.'
     },
     dinner: {
-      title: 'Pollo desmechado con hogao, arroz y ensalada',
+      title: 'Pollo guisado con presa mixta, arroz y ensalada',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '35–40 min',
+      prepTime: '45 min',
       recipeId: 'cena-dia-10',
-      carbohydrate: 'Arroz moderado (120 g crudo)',
-      keyTip: 'Cocina en el propio caldo concentrado para retener todos los jugos.'
+      carbohydrate: 'Arroz blanco moderado',
+      keyTip: 'Usa presas mixtas (pierna-pernil, alas, contramuslo) para variar sabores y texturas.'
     },
     nextDayLunch: {
-      title: 'Pollo desmechado con hogao y arroz',
-      note: 'Empacado anoche. Lleva ensalada de repollo y aguacate aparte.'
+      title: 'Pollo guisado con presa mixta, salsa y arroz',
+      note: 'Presa tierna bañada en salsa criolla con zanahorias y arroz. Ensalada de repollo aparte.'
     }
   },
+
   {
     dayNumber: 11,
     weekNumber: 2,
-    title: 'Día 11: Cazuela de Garbanzos y Pollo',
+    title: 'Día 11: Pescado al Limón y Papas',
     breakfast: {
-      title: 'Avena remojada con banano',
-      prepTime: '2 min',
-      recipeId: 'desayuno-3',
-      quickNote: 'Avena cremosa lista desde la noche previa.'
+      title: 'Calentado pequeño con huevo, queso y fruta',
+      prepTime: '8–10 min',
+      recipeId: 'desayuno-5',
+      quickNote: 'Calentado de garbanzos o leguminosas con arroz, sofrito, huevos y fruta fresca.'
     },
     lunch: {
-      title: 'Pollo desmechado con hogao, arroz y aguacate',
+      title: 'Pollo guisado con presa mixta, salsa y arroz',
       sourceDinnerDay: 10,
       isFreshOrPacked: 'Empacado anoche (Cena Día 10)',
-      packingTip: 'Mezclar el pollo jugoso con el arroz al calentar.'
+      packingTip: 'Presa de pollo jugosa con arroz y zanahoria. Acompaña con repollo aderezado.'
     },
     dinner: {
-      title: 'Garbanzos con pollo y verduras (sin arroz)',
+      title: 'Filete de pescado al limón con papa y ensalada',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '45–50 min',
+      prepTime: '25 min',
       recipeId: 'cena-dia-11',
-      carbohydrate: 'Papa + Garbanzos (Sin arroz ni arepa)',
-      keyTip: 'Termina con hojas frescas de espinaca en los últimos 2 minutos.'
+      carbohydrate: 'Papa cocida al vapor',
+      keyTip: 'Cocina los filetes 3–4 min por lado sin moverlos hasta dorar. Haz salsa ligera con limón.'
     },
     nextDayLunch: {
-      title: 'Garbanzos con pollo, papa y espinaca',
-      note: 'Plato único reconfortante empacado anoche en refractaria.'
+      title: 'Filete de pescado al limón con papas al vapor',
+      note: 'Filete de pescado bañado en jugo de limón con papas. Recalienta tapado a potencia media.'
     }
   },
+
   {
     dayNumber: 12,
     weekNumber: 2,
-    title: 'Día 12: Fríjoles con Ahuyama y Aguacate',
+    title: 'Día 12: Carne Molida Criolla con Verduras',
     breakfast: {
-      title: 'Huevos cocidos, aguacate y fruta',
-      prepTime: '3–5 min',
-      recipeId: 'desayuno-4',
-      quickNote: 'Desayuno alto en grasas buenas y proteína.'
+      title: 'Arepa con huevo, queso y fruta de temporada',
+      prepTime: '7–8 min',
+      recipeId: 'desayuno-6',
+      quickNote: 'Arepa de maíz caliente con huevo frito o revuelto, queso campesino y fruta dulce.'
     },
     lunch: {
-      title: 'Garbanzos con pollo y verduras',
+      title: 'Filete de pescado al limón con papas al vapor',
       sourceDinnerDay: 11,
       isFreshOrPacked: 'Empacado anoche (Cena Día 11)',
-      packingTip: 'Súper completo; solo recalentar y disfrutar.'
+      packingTip: 'Pescado blanco con papas al vapor y ensalada fresca de repollo y zanahoria.'
     },
     dinner: {
-      title: 'Fríjoles con ahuyama, arroz pequeño y aguacate',
+      title: 'Carne molida guisada con verduras y arroz',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '50–55 min',
+      prepTime: '35 min',
       recipeId: 'cena-dia-12',
-      carbohydrate: 'Arroz pequeño (100 g crudo) + Fríjol',
-      keyTip: 'Ahuyama machacada para espesar salsa dorada y sedosa.'
+      carbohydrate: 'Arroz blanco moderado',
+      keyTip: 'Carne molida bien jugosa con calabacín, arveja y zanahoria en salsa de hogao.'
     },
     nextDayLunch: {
-      title: 'Fríjoles con ahuyama y arroz pequeño',
-      note: 'Empacado anoche. Lleva el aguacate fresco para cortar al momento.'
+      title: 'Carne molida guisada con verduras y arroz',
+      note: 'Almuerzo sumamente fácil de calentar en la oficina; la carne molida se mantiene jugosa.'
     }
   },
+
   {
     dayNumber: 13,
     weekNumber: 2,
-    title: 'Día 13: Sancocho Tradicional',
+    title: 'Día 13: Sancocho Tradicional de Pollo',
     breakfast: {
-      title: 'Yogur con avena y fruta',
-      prepTime: '2–3 min',
+      title: 'Arepa con huevos pericos, queso y fruta',
+      prepTime: '8–10 min',
       recipeId: 'desayuno-1',
-      quickNote: 'Rápido, fresco y listo en dos minutos.'
+      quickNote: 'Desayuno colombiano reconfortante para el fin de semana con arepa y pericos.'
     },
     lunch: {
-      title: 'Fríjoles con ahuyama, arroz y aguacate',
+      title: 'Carne molida guisada con verduras y arroz',
       sourceDinnerDay: 12,
       isFreshOrPacked: 'Empacado anoche (Cena Día 12)',
-      packingTip: 'Calentar con 2 cucharadas de agua para revivir la cremosidad.'
+      packingTip: 'Carne molida abundante con arroz y verduras. Listo en 2 minutos.'
     },
     dinner: {
-      title: 'Sancocho de pollo (sin arroz)',
+      title: 'Sancocho de pollo con yuca, papa y mazorca',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '45–55 min',
+      prepTime: '55 min',
       recipeId: 'cena-dia-13',
-      carbohydrate: 'Yuca + Mazorca + Plátano verde + Papa (Sin arroz)',
-      keyTip: 'Sancocho campesino completo con hogao y cilantro cimarrón.'
+      carbohydrate: 'Yuca, Papa, Plátano verde y Mazorca (Sin arroz)',
+      keyTip: 'Las presas con hueso dan todo el sazón al caldo. No cocines arroz este día.'
     },
     nextDayLunch: {
-      title: 'Sancocho de pollo con plátano y yuca',
-      note: 'Empacado anoche en tarrinas herméticas anti-derrame.'
+      title: 'Sancocho de pollo con yuca, papa y mazorca',
+      note: 'Transporta en termo para sopa hermético o recipiente de silicona antiderrames.'
     }
   },
+
   {
     dayNumber: 14,
     weekNumber: 2,
-    title: 'Día 14: Tortilla de Verduras & Cierre Quincenal',
+    title: 'Día 14: Tortilla Campesina de Cierre',
     breakfast: {
-      title: 'Arepa rápida con huevo y queso',
-      prepTime: '8–10 min',
-      recipeId: 'desayuno-7',
-      quickNote: 'Desayuno caliente para completar el ciclo de 14 días.'
+      title: 'Avena remojada con banano, maní y huevo cocido',
+      prepTime: '2–3 min',
+      recipeId: 'desayuno-2',
+      quickNote: 'Desayuno frío nutritivo con avena en leche, banano, maní tostado y huevo duro.'
     },
     lunch: {
-      title: 'Sancocho de pollo tradicional',
+      title: 'Sancocho de pollo con yuca, papa y mazorca',
       sourceDinnerDay: 13,
       isFreshOrPacked: 'Empacado anoche (Cena Día 13)',
-      packingTip: 'El sancocho sabe aún mejor al día siguiente.'
+      packingTip: 'Sancocho colombiano caliente en termo. Disfruta los tubérculos tiernos y el pollo.'
     },
     dinner: {
-      title: 'Tortilla grande de verduras con arroz pequeño',
+      title: 'Tortilla grande de verduras, queso y arroz pequeño',
       yieldPortions: 4,
       eatPortions: 2,
       packPortions: 2,
-      prepTime: '25–30 min',
+      prepTime: '25 min',
       recipeId: 'cena-dia-14',
-      carbohydrate: 'Arroz pequeño (100 g crudo)',
-      keyTip: 'Cierre saludable cargado de espinaca, calabacín, pimentón y tomate.'
+      carbohydrate: 'Arroz blanco pequeño',
+      keyTip: 'Tortilla gruesa de 10 huevos con calabacín, espinaca y queso campesino fundido.'
     },
     nextDayLunch: {
-      title: 'Tortilla de verduras con arroz pequeño',
-      note: 'Quedan 2 porciones extra empacadas listas para el almuerzo siguiente.'
+      title: 'Tortilla de verduras con queso y arroz',
+      note: 'Empaca 2 cuartos de tortilla con arroz pequeño y pepino. Deliciosa fría o caliente.'
     }
   }
 ];

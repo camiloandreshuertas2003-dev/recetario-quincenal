@@ -1,7 +1,7 @@
 import { User, HouseholdState, MarketItem, FridgeNote } from '@/types';
 import { SHOPPING_LIST_INITIAL } from '@/data/shoppingData';
 
-const STORAGE_KEY_STATE = 'recetario_household_state_v3';
+const STORAGE_KEY_STATE = 'recetario_household_state_v4';
 const STORAGE_KEY_SESSION = 'recetario_current_user_v1';
 
 const DEFAULT_USERS: User[] = [
@@ -326,6 +326,29 @@ export function registerNewMember(params: {
   state.users.push(newUser);
   saveHouseholdState(state);
   return { success: true, user: newUser };
+}
+
+export function deleteMember(userId: string): { success: boolean; error?: string } {
+  const state = getHouseholdState();
+  if (state.users.length <= 1) {
+    return { success: false, error: 'No se puede eliminar el único integrante del hogar.' };
+  }
+
+  const userIndex = state.users.findIndex((u) => u.id === userId);
+  if (userIndex === -1) {
+    return { success: false, error: 'Usuario no encontrado.' };
+  }
+
+  const currentSession = getCurrentSession();
+  state.users.splice(userIndex, 1);
+  saveHouseholdState(state);
+
+  // If the user being deleted is the current session, switch to the first remaining member
+  if (currentSession && currentSession.id === userId) {
+    setCurrentSession(state.users[0]);
+  }
+
+  return { success: true };
 }
 
 export function toggleMarketItemCheck(itemId: string, userName: string): HouseholdState {

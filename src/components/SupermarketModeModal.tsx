@@ -101,19 +101,19 @@ export const SupermarketModeModal: React.FC<SupermarketModeModalProps> = ({
               >
                 <div className="flex-1 min-w-0">
                   <span
-                    className={`text-sm sm:text-base font-bold block leading-snug ${
+                    className={`text-base sm:text-lg font-black block leading-snug ${
                       isChecked ? 'line-through text-slate-500' : 'text-white'
                     }`}
                   >
                     {item.name}
                   </span>
 
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-black text-brand-400 font-mono">
-                      {item.buyAmount}
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                    <span className="text-xs sm:text-sm font-black text-brand-300 font-mono bg-brand-950/60 px-2 py-0.5 rounded-md border border-brand-800/60">
+                      Comprar: {item.buyAmount}
                     </span>
                     {item.notes && (
-                      <span className="text-[11px] text-slate-400 truncate max-w-[180px]">
+                      <span className="text-xs text-slate-300">
                         • {item.notes}
                       </span>
                     )}
@@ -122,7 +122,7 @@ export const SupermarketModeModal: React.FC<SupermarketModeModalProps> = ({
 
                 {/* Big touch target check box */}
                 <div
-                  className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all ${
+                  className={`w-9 h-9 rounded-2xl border-2 flex items-center justify-center shrink-0 transition-all ${
                     isChecked
                       ? 'bg-brand-500 border-brand-500 text-slate-950'
                       : 'border-slate-700 bg-slate-800'

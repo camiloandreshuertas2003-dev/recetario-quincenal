@@ -53,6 +53,7 @@ export interface Recipe {
   id: string;
   title: string;
   category: 'cena' | 'desayuno' | 'almuerzo';
+  proteinType?: 'pollo' | 'res' | 'pescado' | 'granos' | 'huevo';
   yieldServings: number;
   prepTime: string;
   cookMinutes?: number;
@@ -66,6 +67,7 @@ export interface Recipe {
   carbType?: string;
   imageUrl?: string;
   aiPrompt?: string;
+  whyFilling?: string;
 }
 
 export type MarketCategory = 'proteinas' | 'verduras' | 'frutas_despensa';

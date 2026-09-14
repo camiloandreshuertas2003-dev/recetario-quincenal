@@ -46,8 +46,8 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
         <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
       </head>
-      <body className="bg-slate-950 min-h-screen text-slate-900 antialiased selection:bg-brand-500 selection:text-white">
-        <div className="max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col relative shadow-2xl border-x border-slate-200/80 pb-20">
+      <body className="bg-slate-950 min-h-screen text-slate-900 text-base antialiased selection:bg-brand-500 selection:text-white">
+        <div className="max-w-lg md:max-w-xl mx-auto min-h-screen bg-slate-50 flex flex-col relative shadow-2xl border-x border-slate-200/80 pb-24">
           {children}
         </div>
       </body>
