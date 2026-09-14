@@ -5,6 +5,7 @@ export interface User {
   password?: string;
   role: 'admin' | 'miembro';
   avatarColor: string;
+  photoUrl?: string;
   createdAt: string;
 }
 
@@ -23,6 +24,7 @@ export interface DayMealPlan {
     sourceDinnerDay: number | null;
     isFreshOrPacked: string;
     packingTip: string;
+    recipeId?: string; // e.g. for Day 1 sandwich
   };
   dinner: {
     title: string;
@@ -50,7 +52,7 @@ export interface RecipeIngredient {
 export interface Recipe {
   id: string;
   title: string;
-  category: 'cena' | 'desayuno';
+  category: 'cena' | 'desayuno' | 'almuerzo';
   yieldServings: number;
   prepTime: string;
   ingredients: RecipeIngredient[];
@@ -61,6 +63,8 @@ export interface Recipe {
   recipeSourceName?: string;
   highlightTag: string;
   carbType?: string;
+  imageUrl?: string;
+  aiPrompt?: string;
 }
 
 export type MarketCategory = 'proteinas' | 'verduras' | 'frutas_despensa';
@@ -72,7 +76,7 @@ export interface MarketItem {
   calculatedUsage: string;
   buyAmount: string;
   notes?: string;
-  batch?: 'inicio' | 'dia8' | 'indiferente'; // compra en dos tandas
+  batch?: 'inicio' | 'dia8' | 'indiferente';
   checked?: boolean;
   checkedBy?: string;
   checkedAt?: string;
@@ -86,5 +90,6 @@ export interface HouseholdState {
   customItems: MarketItem[];
   completedDays: number[];
   activeWeek: number;
+  startDate?: string; // YYYY-MM-DD
   updatedAt: string;
 }

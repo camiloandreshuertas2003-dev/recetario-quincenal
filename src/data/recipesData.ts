@@ -1,6 +1,35 @@
 import { Recipe } from '@/types';
 
 export const RECIPES: Recipe[] = [
+  // ==================== ALMUERZO INICIAL (DÍA 1) ====================
+  {
+    id: 'almuerzo-dia-1',
+    title: 'Sándwich de huevo rápido (o porción previa)',
+    category: 'almuerzo',
+    yieldServings: 2,
+    prepTime: '5 min',
+    highlightTag: 'Almuerzo Inicial / 5 min',
+    carbType: 'Pan integral o arepa delgada',
+    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Fresh homemade Colombian egg sandwich with melted campesino cheese, ripe tomato slices, toasted bread, natural morning light, rustic wooden table.',
+    ingredients: [
+      { name: 'Tajadas de pan integral o arepas delgadas', amount: '4 tajadas (2 porciones)' },
+      { name: 'Huevos frescos', amount: '4 unidades' },
+      { name: 'Tomate maduro en rodajas finas', amount: '80 g', grams: 80 },
+      { name: 'Mantequilla o aceite de oliva', amount: '1 cucharadita' },
+      { name: 'Queso campesino o tajado (opcional)', amount: '60 g', grams: 60 },
+      { name: 'Sal y pimienta negra', amount: 'Al gusto' }
+    ],
+    steps: [
+      'Tuesta las 4 tajadas de pan o arepas en la sartén hasta que estén crujientes.',
+      'Bate los 4 huevos con una pizca de sal y pimienta. En una sartén con la cucharadita de mantequilla a fuego medio, vierte los huevos y revuelve suavemente 2–3 minutos hasta que cuajen de forma cremosa.',
+      'Arma el sándwich: coloca sobre el pan rodajas de tomate maduro, el queso campesino y los huevos recién preparados.',
+      'Tapa y corta diagonalmente en mitades para facilitar el consumo.',
+      'Si tienes una porción congelada de antemano de un menú previo, puedes optar por llevarla. Desde la cena de hoy, el ciclo habitual de comidas queda 100% activo.'
+    ],
+    packingInstructions: 'Deja reposar el sándwich 2 minutos destapado antes de empacar en papel aluminio o refractaria, evitando que el vapor humedezca el pan.'
+  },
+
   // ==================== DESAYUNOS EXPRÉS ====================
   {
     id: 'desayuno-1',
@@ -9,6 +38,8 @@ export const RECIPES: Recipe[] = [
     yieldServings: 2,
     prepTime: '2–3 min',
     highlightTag: 'Frío / Adelantable',
+    imageUrl: 'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Bowl of Greek natural yogurt topped with rolled oats, fresh diced orange papaya, and toasted peanuts, morning breakfast setting, healthy vibrant.',
     ingredients: [
       { name: 'Yogur natural sin azúcar', amount: '400 g', grams: 400 },
       { name: 'Avena en hojuelas', amount: '60 g', grams: 60 },
@@ -29,6 +60,8 @@ export const RECIPES: Recipe[] = [
     yieldServings: 2,
     prepTime: '8–10 min',
     highlightTag: 'Caliente / Tradicional',
+    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Traditional Colombian scrambled eggs huevos pericos with diced tomatoes and scallions served with golden thin arepa, coffee cup in background.',
     videoUrl: 'https://www.youtube.com/watch?v=y_TyEhcejbE',
     recipeUrl: 'https://www.mycolombianrecipes.com/es/huevos-pericos/',
     recipeSourceName: 'My Colombian Recipes',
@@ -56,6 +89,8 @@ export const RECIPES: Recipe[] = [
     yieldServings: 2,
     prepTime: '2 min en la mañana',
     highlightTag: 'Cero fuego / Rápido',
+    imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Glass jar of overnight soaked oats with milk, sprinkled cinnamon, sliced fresh bananas, and roasted peanuts, breakfast meal prep.',
     ingredients: [
       { name: 'Avena en hojuelas', amount: '80 g', grams: 80 },
       { name: 'Leche', amount: '500 ml' },
@@ -77,6 +112,8 @@ export const RECIPES: Recipe[] = [
     yieldServings: 2,
     prepTime: '3–5 min',
     highlightTag: 'Proteico / Adelantable',
+    imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Platter of hard-boiled eggs halved, fresh white campesino cheese cubes, ripe sliced avocado, orange slices, clean healthy breakfast.',
     ingredients: [
       { name: 'Huevos cocidos', amount: '4 unidades' },
       { name: 'Queso campesino fresco', amount: '80 g', grams: 80 },
@@ -97,6 +134,8 @@ export const RECIPES: Recipe[] = [
     yieldServings: 2,
     prepTime: '7–8 min',
     highlightTag: 'Clásico colombiano',
+    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Toasted white corn arepa topped with melted campesino cheese and a fried egg with golden yolk, alongside fresh fruit.',
     ingredients: [
       { name: 'Arepas delgadas ya preparadas', amount: '2 unidades' },
       { name: 'Queso campesino', amount: '80 g', grams: 80 },
@@ -118,6 +157,8 @@ export const RECIPES: Recipe[] = [
     yieldServings: 2,
     prepTime: '2–3 min',
     highlightTag: 'Ligero y digestivo',
+    imageUrl: 'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Glass bowl filled with thick white yogurt, fresh diced tropical fruits, topped with roasted peanuts and oat flakes.',
     ingredients: [
       { name: 'Yogur natural sin azúcar', amount: '400 g', grams: 400 },
       { name: 'Papaya o banano', amount: '300 g', grams: 300 },
@@ -138,6 +179,8 @@ export const RECIPES: Recipe[] = [
     yieldServings: 2,
     prepTime: '8–10 min',
     highlightTag: 'Energía sostenida',
+    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Crispy warm arepas served with fried eggs, sliced white campesino cheese, and tropical fruit slices.',
     ingredients: [
       { name: 'Arepas pequeñas listas o congeladas', amount: '2 unidades' },
       { name: 'Huevos', amount: '2 unidades' },
@@ -161,6 +204,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '35–40 min',
     highlightTag: 'Pollo / Carbohidrato moderado',
     carbType: 'Arroz pequeño (120 g crudo total)',
+    imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Colombian chicken stew sudado de pollo in a deep ceramic dish with tender yellow ahuyama squash chunks, tomato-onion hogao sauce, white rice, shredded cabbage salad.',
     videoUrl: 'https://www.youtube.com/watch?v=BVQzPdoeoTg',
     recipeUrl: 'https://chatelet.com.co/blogs/news/como-hacer-sudado-de-pollo-colombiano-receta-tradicional-y-su-historia',
     recipeSourceName: 'Châtelet Gastronomía',
@@ -196,6 +241,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '40–45 min',
     highlightTag: 'Leguminosa / ICBF Recomendado',
     carbType: 'Papa + Arroz pequeño (100 g crudo)',
+    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Bowl of Colombian lentil stew with carrots and potatoes, topped with a sliced boiled egg, served alongside white rice and crisp cucumber slices.',
     videoUrl: 'https://www.youtube.com/watch?v=9fCPmz1_GwA',
     recipeSourceName: 'YouTube Receta Tradicional',
     ingredients: [
@@ -230,6 +277,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '25–30 min',
     highlightTag: 'Salteado rápido / Arepa',
     carbType: 'Arepa de maíz (160 g harina para 4 arepas)',
+    imageUrl: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Sizzling wok stir fry with diced seasoned chicken breast, zucchini ribbons, carrots, red bell pepper, green beans, served with warm Colombian arepa.',
     videoUrl: 'https://www.youtube.com/watch?v=jSiZzQ7hepc',
     recipeSourceName: 'YouTube Técnicas de Cocina',
     ingredients: [
@@ -261,9 +310,11 @@ export const RECIPES: Recipe[] = [
     title: 'Garbanzos con ahuyama, arroz pequeño y repollo',
     category: 'cena',
     yieldServings: 4,
-    prepTime: '45–50 min (con garbanzo remojado)',
+    prepTime: '45–50 min',
     highlightTag: 'Leguminosa rica en fibra',
     carbType: 'Arroz pequeño (100 g crudo)',
+    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Creamy Colombian garbanzo chickpea stew with sweet golden squash ahuyama, chopped cilantro garnish, white rice side, shredded cabbage.',
     videoUrl: 'https://www.youtube.com/watch?v=0bNYniy3unQ',
     recipeUrl: 'https://vecinavegetariana.com/es/garbanzos-colombianos/',
     recipeSourceName: 'Vecina Vegetariana',
@@ -297,6 +348,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '40–45 min',
     highlightTag: 'Plato único balanceado',
     carbType: 'Arroz (200 g crudo para 4 porciones)',
+    imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Traditional Colombian arroz con pollo loaded with shredded chicken, green peas, carrots, green beans, red bell peppers, fragrant yellow rice.',
     videoUrl: 'https://www.youtube.com/watch?v=2eKYzlGgTvQ',
     recipeUrl: 'https://campollo.com/recetas/arroz-pollo-colombiano/',
     recipeSourceName: 'Campollo Recetas Colombianas',
@@ -328,9 +381,11 @@ export const RECIPES: Recipe[] = [
     title: 'Fríjoles con ahuyama y plátano verde (sin arroz)',
     category: 'cena',
     yieldServings: 4,
-    prepTime: '50–60 min (remojados previamente)',
+    prepTime: '50–60 min',
     highlightTag: 'Plato fuerte sin arroz',
     carbType: 'Plátano verde + Fríjol + Ahuyama (Sin arroz)',
+    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Deep clay bowl of Colombian red beans frijoles cargamanto cooked with green plantain chunks and sweet ahuyama squash, side of avocado and cabbage.',
     videoUrl: 'https://www.youtube.com/watch?v=QAXcXL9Hy2A',
     recipeUrl: 'https://www.directoalpaladar.com/recetas-de-legumbres/frijoles-colombianos-cremoso-plato-cuchara-tradicional-muy-facil-repleto-sabor',
     recipeSourceName: 'Directo al Paladar',
@@ -364,6 +419,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '40–45 min',
     highlightTag: 'Reconfortante fin de semana',
     carbType: 'Papa + Yuca + Ahuyama (Sin arroz)',
+    imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Steaming Colombian country style chicken soup sopa de pollo with yuca root, tender potatoes, carrots, green beans, fresh cilantro garnish in rustic bowl.',
     videoUrl: 'https://www.youtube.com/watch?v=WFodAqWBMiM',
     recipeUrl: 'https://www.colombia.com/gastronomia/recetas-colombianas/sopa-de-pollo-vegetales-y-pasta-r104',
     recipeSourceName: 'Colombia.com Gastronomía',
@@ -398,6 +455,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '35–40 min',
     highlightTag: 'Inicio Semana 2 / Ligero',
     carbType: 'Arroz pequeño (120 g crudo)',
+    imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Golden browned chicken pieces simmering in a rich squash and carrot sauce, served with white rice and fresh cucumber salad.',
     videoUrl: 'https://www.youtube.com/watch?v=gBhZ0jQNaa0',
     recipeSourceName: 'YouTube Cocina Hogareña',
     ingredients: [
@@ -430,6 +489,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '40–45 min',
     highlightTag: 'Leguminosa con plátano dulce',
     carbType: 'Plátano maduro asado (Sin arroz)',
+    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Savory lentil stew with diced green zucchini, soft boiled eggs, caramelized roasted ripe sweet plantains plátano maduro, hearty healthy plate.',
     videoUrl: 'https://www.youtube.com/watch?v=2y71buT5v7w',
     recipeSourceName: 'YouTube Recetas Colombianas',
     ingredients: [
@@ -463,6 +524,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '35–40 min',
     highlightTag: 'Sabor casero tradicional',
     carbType: 'Arroz moderado (120 g crudo)',
+    imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Juicy shredded chicken cooked in rich Colombian tomato onion hogao sauce, served with white fluffy rice, avocado slices, cabbage salad.',
     recipeUrl: 'https://chatelet.com.co/blogs/news/como-hacer-sudado-de-pollo-colombiano-receta-tradicional-y-su-historia',
     recipeSourceName: 'Châtelet Gastronomía',
     ingredients: [
@@ -495,6 +558,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '45–50 min',
     highlightTag: 'Cazuela completa y nutritiva',
     carbType: 'Papa + Garbanzo (Sin arroz ni arepa)',
+    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Hearty chickpea and chicken stew cazuela de garbanzos with potato cubes, zucchini, carrots, and wilted fresh dark green spinach leaves.',
     videoUrl: 'https://www.youtube.com/watch?v=0bNYniy3unQ',
     recipeUrl: 'https://vecinavegetariana.com/es/garbanzos-colombianos/',
     recipeSourceName: 'Vecina Vegetariana',
@@ -528,6 +593,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '50–55 min',
     highlightTag: 'Fuerza proteica vegetal',
     carbType: 'Arroz pequeño (100 g crudo) + Fríjol',
+    imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Bowl of Colombian red beans frijoles thickened with mashed ahuyama squash, side of fluffy white rice, fresh avocado, shredded cabbage.',
     videoUrl: 'https://www.youtube.com/watch?v=QAXcXL9Hy2A',
     recipeSourceName: 'YouTube Receta Tradicional',
     ingredients: [
@@ -560,6 +627,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '45–55 min',
     highlightTag: 'Patrimonio gastronómico',
     carbType: 'Yuca + Plátano verde + Papa + Mazorca (Sin arroz)',
+    imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Traditional Colombian sancocho de pollo soup in an authentic clay pot with corn on the cob pieces, green plantain, yuca root, potatoes, and cilantro.',
     videoUrl: 'https://www.youtube.com/watch?v=efL_CU49ae8',
     recipeUrl: 'https://pollocolombiano.com/sancocho-de-pollo/',
     recipeSourceName: 'Pollo Colombiano Oficial',
@@ -594,6 +663,8 @@ export const RECIPES: Recipe[] = [
     prepTime: '25–30 min',
     highlightTag: 'Cierre de ciclo / Vegetales',
     carbType: 'Arroz pequeño (100 g crudo)',
+    imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&auto=format&fit=crop&q=80',
+    aiPrompt: 'Thick golden Spanish style vegetable omelette tortilla de verduras packed with green zucchini, fresh spinach, red peppers, sliced on a plate with rice side.',
     videoUrl: 'https://www.youtube.com/watch?v=ga4NBo6JPXU',
     recipeUrl: 'https://www.gourmet.cl/recetas/tortilla-de-verduras/',
     recipeSourceName: 'Gourmet Recetas',

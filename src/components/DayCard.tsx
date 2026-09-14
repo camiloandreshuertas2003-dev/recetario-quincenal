@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { DayMealPlan, Recipe } from '@/types';
+import { DayMealPlan } from '@/types';
+import { calculateDateForDay } from '@/lib/storage';
 import {
   Sun,
   Briefcase,
@@ -11,11 +12,13 @@ import {
   CheckCircle2,
   Circle,
   Eye,
-  Info
+  Info,
+  Calendar
 } from 'lucide-react';
 
 interface DayCardProps {
   day: DayMealPlan;
+  startDate?: string;
   isCompleted: boolean;
   onToggleComplete: () => void;
   onOpenRecipe: (recipeId: string) => void;
@@ -23,10 +26,13 @@ interface DayCardProps {
 
 export const DayCard: React.FC<DayCardProps> = ({
   day,
+  startDate,
   isCompleted,
   onToggleComplete,
   onOpenRecipe
 }) => {
+  const dateInfo = calculateDateForDay(day.dayNumber, startDate);
+
   return (
     <div
       className={`rounded-3xl border transition-all duration-200 overflow-hidden shadow-xs ${
@@ -35,16 +41,21 @@ export const DayCard: React.FC<DayCardProps> = ({
           : 'bg-white border-slate-200/80 hover:border-brand-300'
       }`}
     >
-      {/* Header */}
+      {/* Header with Day Number and Calendar Date */}
       <div className="p-4 bg-gradient-to-r from-slate-50 to-brand-50/30 border-b border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="w-8 h-8 rounded-xl bg-brand-600 text-white font-bold text-sm flex items-center justify-center shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="w-9 h-9 rounded-2xl bg-brand-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
             {day.dayNumber}
           </span>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-brand-700">
-              Semana {day.weekNumber}
-            </span>
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-brand-700">
+              <span>Semana {day.weekNumber}</span>
+              <span>•</span>
+              <span className="flex items-center gap-1 text-slate-600 font-semibold lowercase first-letter:capitalize">
+                <Calendar className="w-3 h-3 text-brand-600" />
+                {dateInfo.formattedDate}
+              </span>
+            </div>
             <h3 className="text-sm font-bold text-slate-900 leading-tight">
               {day.title}
             </h3>
@@ -121,6 +132,17 @@ export const DayCard: React.FC<DayCardProps> = ({
           <p className="text-[11px] text-blue-900/80 mt-1 leading-relaxed">
             {day.lunch.packingTip}
           </p>
+
+          {/* Botón de receta para el almuerzo si aplica (ej. Sándwich Día 1) */}
+          {day.lunch.recipeId && (
+            <button
+              onClick={() => onOpenRecipe(day.lunch.recipeId!)}
+              className="mt-2 text-xs font-bold text-blue-800 hover:text-blue-950 flex items-center gap-1 underline underline-offset-2"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Ver receta del Sándwich (5 min)
+            </button>
+          )}
         </div>
 
         {/* 3. CENA */}
@@ -162,7 +184,7 @@ export const DayCard: React.FC<DayCardProps> = ({
               className="text-xs font-bold text-brand-800 hover:text-brand-950 bg-white hover:bg-emerald-50 border border-brand-300 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors"
             >
               <Eye className="w-3.5 h-3.5 text-brand-600" />
-              Ver Receta de Cena y Gramos
+              Ver Receta, Foto y Gramos
             </button>
             <div className="text-[10px] text-slate-500 font-medium flex items-center gap-1">
               <span>Almuerzo mañana</span>

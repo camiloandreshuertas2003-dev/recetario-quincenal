@@ -9,9 +9,10 @@ import {
   Video,
   ExternalLink,
   ShieldAlert,
-  CheckCircle2,
   UtensilsCrossed,
-  Sparkles
+  Sparkles,
+  Wand2,
+  RefreshCw
 } from 'lucide-react';
 
 interface RecipeModalProps {
@@ -21,8 +22,13 @@ interface RecipeModalProps {
 
 export const RecipeModal: React.FC<RecipeModalProps> = ({ recipe, onClose }) => {
   const [checkedIngredients, setCheckedIngredients] = useState<Record<string, boolean>>({});
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [aiGeneratedSuccess, setAiGeneratedSuccess] = useState(false);
+  const [customImageUrl, setCustomImageUrl] = useState<string | null>(null);
 
   if (!recipe) return null;
+
+  const currentImg = customImageUrl || recipe.imageUrl;
 
   const toggleIngredient = (name: string) => {
     setCheckedIngredients((prev) => ({
@@ -31,51 +37,127 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({ recipe, onClose }) => 
     }));
   };
 
+  const handleRecreateWithAi = () => {
+    setIsAiGenerating(true);
+    setAiGeneratedSuccess(false);
+
+    // Simulate AI image generation based on ingredients & recipe prompt
+    setTimeout(() => {
+      // Alternate food photography angle
+      const culinaryAngles = [
+        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&auto=format&fit=crop&q=85',
+        'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=900&auto=format&fit=crop&q=85',
+        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=900&auto=format&fit=crop&q=85',
+        'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=900&auto=format&fit=crop&q=85'
+      ];
+      const randomImg = culinaryAngles[Math.floor(Math.random() * culinaryAngles.length)];
+      setCustomImageUrl(randomImg);
+      setIsAiGenerating(false);
+      setAiGeneratedSuccess(true);
+    }, 1200);
+  };
+
+  const getCategoryLabel = () => {
+    if (recipe.category === 'cena') return 'Cena para Almuerzo';
+    if (recipe.category === 'almuerzo') return 'Almuerzo Inicial (5 min)';
+    return 'Desayuno Exprés';
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-lg max-h-[90vh] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-6 duration-300">
-        {/* Modal Header */}
-        <div className="relative px-5 pt-5 pb-4 border-b border-slate-100 bg-gradient-to-br from-brand-50/50 via-white to-warm-50/30">
+      <div className="bg-white w-full max-w-lg max-h-[92vh] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-6 duration-300">
+        {/* Recipe Image & Close Button */}
+        <div className="relative w-full h-44 sm:h-52 bg-slate-900 shrink-0">
+          {currentImg ? (
+            <img
+              src={currentImg}
+              alt={recipe.title}
+              className="w-full h-full object-cover brightness-90"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-tr from-brand-800 to-warm-700 flex items-center justify-center">
+              <Sparkles className="w-12 h-12 text-white/40" />
+            </div>
+          )}
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 bg-white/80 hover:bg-slate-100 rounded-full transition-colors"
+            className="absolute top-3 right-3 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full backdrop-blur-md transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex flex-wrap items-center gap-2 mb-2 pr-8">
-            <span
-              className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                recipe.category === 'cena'
-                  ? 'bg-brand-100 text-brand-800'
-                  : 'bg-warm-100 text-warm-800'
-              }`}
-            >
-              {recipe.category === 'cena' ? 'Cena para Almuerzo' : 'Desayuno Exprés'}
-            </span>
-            <span className="text-xs bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
-              <Users className="w-3 h-3" />
-              {recipe.yieldServings} porciones {recipe.category === 'cena' ? '(2 hoy + 2 mañana)' : 'para 2'}
-            </span>
-            <span className="text-xs bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {recipe.prepTime}
-            </span>
+          {/* AI Recreate Button on image */}
+          <button
+            onClick={handleRecreateWithAi}
+            disabled={isAiGenerating}
+            className="absolute top-3 left-3 bg-white/90 hover:bg-white text-slate-800 text-[11px] font-bold px-2.5 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1.5"
+          >
+            {isAiGenerating ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-600" />
+                <span>Generando con IA...</span>
+              </>
+            ) : (
+              <>
+                <Wand2 className="w-3.5 h-3.5 text-brand-600" />
+                <span>Recrear foto con IA</span>
+              </>
+            )}
+          </button>
+
+          {/* Bottom Title on Image */}
+          <div className="absolute bottom-3 left-4 right-4 text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <span
+                className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
+                  recipe.category === 'cena'
+                    ? 'bg-emerald-500 text-white'
+                    : recipe.category === 'almuerzo'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-amber-500 text-slate-950'
+                }`}
+              >
+                {getCategoryLabel()}
+              </span>
+              <span className="text-[11px] bg-white/20 backdrop-blur-md text-white font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {recipe.prepTime}
+              </span>
+            </div>
+            <h2 className="text-base sm:text-lg font-black leading-tight drop-shadow-md">
+              {recipe.title}
+            </h2>
           </div>
-
-          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
-            {recipe.title}
-          </h2>
-
-          {recipe.carbType && (
-            <p className="text-xs text-amber-700 font-medium mt-1 bg-amber-50/80 px-2 py-1 rounded-md border border-amber-200/60 inline-block">
-              🌾 Carbohidrato: {recipe.carbType}
-            </p>
-          )}
         </div>
 
         {/* Modal Body with Scroll */}
-        <div className="p-5 overflow-y-auto space-y-6 text-sm text-slate-700">
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-5 text-sm text-slate-700">
+          {/* AI Banner feedback if generated */}
+          {aiGeneratedSuccess && (
+            <div className="p-2.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-900 text-xs flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold">Imagen recreada con IA para este plato:</p>
+                <p className="text-[11px] text-brand-800/80 italic mt-0.5">
+                  "{recipe.aiPrompt || recipe.title}"
+                </p>
+              </div>
+            </div>
+          )}
+
+          {recipe.carbType && (
+            <div className="text-xs text-amber-900 font-medium bg-amber-50/90 px-3 py-1.5 rounded-xl border border-amber-200/60 flex items-center justify-between">
+              <span>🌾 Carbohidrato principal: <strong>{recipe.carbType}</strong></span>
+              <span className="text-[10px] bg-white text-amber-800 font-bold px-1.5 py-0.5 rounded">
+                Controlado
+              </span>
+            </div>
+          )}
+
           {/* External video and recipe links */}
           {(recipe.videoUrl || recipe.recipeUrl) && (
             <div className="flex flex-wrap gap-2">
@@ -84,7 +166,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({ recipe, onClose }) => 
                   href={recipe.videoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200 transition-colors"
+                  className="flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200 transition-colors"
                 >
                   <Video className="w-4 h-4 text-rose-600" />
                   Ver Video Tutorial
@@ -95,7 +177,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({ recipe, onClose }) => 
                   href={recipe.recipeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl border border-slate-200 transition-colors"
+                  className="flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl border border-slate-200 transition-colors"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   {recipe.recipeSourceName || 'Receta Escrita'}
@@ -106,12 +188,12 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({ recipe, onClose }) => 
 
           {/* Ingredientes con Checkbox interactivo */}
           <div>
-            <div className="flex items-center justify-between mb-2.5">
-              <h3 className="font-bold text-slate-900 flex items-center gap-1.5 text-sm uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-slate-900 flex items-center gap-1.5 text-xs uppercase tracking-wider">
                 <UtensilsCrossed className="w-4 h-4 text-brand-600" />
                 Ingredientes en crudo
               </h3>
-              <span className="text-[11px] text-slate-500">Toca para tachar</span>
+              <span className="text-[11px] text-slate-400">Toca para tachar</span>
             </div>
 
             <div className="grid grid-cols-1 gap-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/70">
@@ -155,7 +237,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({ recipe, onClose }) => 
 
           {/* Preparación paso a paso */}
           <div>
-            <h3 className="font-bold text-slate-900 flex items-center gap-1.5 text-sm uppercase tracking-wider mb-2.5">
+            <h3 className="font-bold text-slate-900 flex items-center gap-1.5 text-xs uppercase tracking-wider mb-2">
               <Sparkles className="w-4 h-4 text-warm-600" />
               Paso a paso de cocción
             </h3>

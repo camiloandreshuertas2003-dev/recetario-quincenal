@@ -6,6 +6,7 @@ import {
   getCurrentSession,
   getHouseholdState,
   toggleDayCompleted,
+  updateStartDate,
   logoutUser
 } from '@/lib/storage';
 import { User, Recipe, DayMealPlan } from '@/types';
@@ -15,6 +16,8 @@ import { WeekSelector } from '@/components/WeekSelector';
 import { DayCard } from '@/components/DayCard';
 import { RecipeModal } from '@/components/RecipeModal';
 import { AddWeekModal } from '@/components/AddWeekModal';
+import { SplashScreen } from '@/components/SplashScreen';
+import { PwaInstallBanner } from '@/components/PwaInstallBanner';
 import { MEAL_PLAN_14_DAYS, DAILY_ROUTINE } from '@/data/mealPlanData';
 import { RECIPES } from '@/data/recipesData';
 import { SHOPPING_LIST_INITIAL } from '@/data/shoppingData';
@@ -22,11 +25,10 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
-  ShieldAlert,
   Sparkles,
   CalendarCheck,
-  CheckCircle2,
-  ListTodo
+  Calendar,
+  Settings2
 } from 'lucide-react';
 
 export default function Home() {
@@ -37,6 +39,8 @@ export default function Home() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isRoutineOpen, setIsRoutineOpen] = useState(false);
   const [isAddWeekOpen, setIsAddWeekOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
   const [allPlans, setAllPlans] = useState<DayMealPlan[]>(MEAL_PLAN_14_DAYS);
   const [availableWeeks, setAvailableWeeks] = useState<number[]>([1, 2]);
 
@@ -48,6 +52,15 @@ export default function Home() {
 
   useEffect(() => {
     refreshState();
+
+    // Check splash
+    if (typeof window !== 'undefined') {
+      const seen = sessionStorage.getItem('recetario_splash_seen');
+      if (!seen) {
+        setShowSplash(true);
+        sessionStorage.setItem('recetario_splash_seen', 'true');
+      }
+    }
 
     const handleStateChange = () => {
       setHousehold(getHouseholdState());
@@ -80,6 +93,11 @@ export default function Home() {
 
   const handleToggleDay = (dayNumber: number) => {
     toggleDayCompleted(dayNumber);
+    setHousehold(getHouseholdState());
+  };
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateStartDate(e.target.value);
     setHousehold(getHouseholdState());
   };
 
@@ -136,16 +154,21 @@ export default function Home() {
   const totalDays = allPlans.length;
   const progressPercent = Math.round((completedCount / totalDays) * 100);
 
-  // Calculate pending market items count for badge
   const totalMarketItems = SHOPPING_LIST_INITIAL.length + (household.customItems?.length || 0);
   const checkedMarketCount = Object.keys(household.checkedItems || {}).length;
   const pendingMarketCount = Math.max(0, totalMarketItems - checkedMarketCount);
 
   return (
     <div className="flex-1 flex flex-col">
+      {/* Animated Splash Screen on app launch */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
       <TopHeader user={currentUser} onLogout={handleLogout} />
 
       <main className="flex-1 px-4 py-4 space-y-4">
+        {/* PWA Install Banner */}
+        <PwaInstallBanner />
+
         {/* Banner de Bienvenida y Principios del Plan */}
         <div className="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-emerald-900 text-white p-4 sm:p-5 shadow-lg relative overflow-hidden">
           <div className="relative z-10">
@@ -160,7 +183,7 @@ export default function Home() {
               <strong>Regla clave:</strong> Cocina 4 porciones en la cena. Se comen 2 hoy y se refrigeran 2 para el almuerzo de mañana. ¡El almuerzo nunca se cocina en la mañana!
             </p>
 
-            {/* Micro stats */}
+            {/* Micro stats & Calendar Start Date Toggle */}
             <div className="mt-3 pt-3 border-t border-brand-600/60 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <CalendarCheck className="w-4 h-4 text-warm-400" />
@@ -168,12 +191,37 @@ export default function Home() {
                   Progreso: <strong>{completedCount} de {totalDays} días</strong>
                 </span>
               </div>
-              <span className="font-bold bg-brand-600/80 px-2 py-0.5 rounded-full text-[11px]">
-                {progressPercent}% Completado
-              </span>
+
+              <button
+                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                className="flex items-center gap-1 font-bold bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-full text-[11px] transition-colors"
+                title="Ajustar fecha de inicio del menú"
+              >
+                <Calendar className="w-3 h-3 text-warm-300" />
+                <span>Fecha Inicio</span>
+              </button>
             </div>
+
+            {/* Date Picker Drawer */}
+            {isDatePickerOpen && (
+              <div className="mt-3 p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="font-semibold text-brand-100">
+                    Fecha de arranque de la quincena:
+                  </label>
+                  <input
+                    type="date"
+                    value={household.startDate || ''}
+                    onChange={handleStartDateChange}
+                    className="bg-white text-slate-900 px-2 py-1 rounded-xl text-xs font-bold font-mono focus:outline-none"
+                  />
+                </div>
+                <p className="text-[10px] text-brand-200 mt-1">
+                  Los 14 días se calcularán a partir de esta fecha en tus tarjetas diarias.
+                </p>
+              </div>
+            )}
           </div>
-          {/* Decorative background circle */}
           <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none" />
         </div>
 
@@ -222,13 +270,12 @@ export default function Home() {
                 </div>
               ))}
 
-              {/* ICBF and USDA FSIS advisory */}
               <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200/60 text-[11px] text-blue-900 space-y-1 mt-2">
                 <p>
                   🥗 <strong>ICBF:</strong> Alimentación con alimentos frescos y variados; leguminosas al menos dos veces por semana.
                 </p>
                 <p>
-                  🧊 <strong>USDA FSIS:</strong> Refrigera antes de 2 horas en recipientes poco profundos con tapa. Las sobras cocidas se consumen en menos de 24 horas en este plan.
+                  🧊 <strong>USDA FSIS:</strong> Refrigera antes de 2 horas en recipientes poco profundos con tapa.
                 </p>
               </div>
             </div>
@@ -243,12 +290,13 @@ export default function Home() {
           onAddNewWeek={() => setIsAddWeekOpen(true)}
         />
 
-        {/* Listado de Días */}
+        {/* Listado de Días con Fechas Dinámicas */}
         <div className="space-y-3.5">
           {filteredPlans.map((day) => (
             <DayCard
               key={day.dayNumber}
               day={day}
+              startDate={household.startDate}
               isCompleted={household.completedDays.includes(day.dayNumber)}
               onToggleComplete={() => handleToggleDay(day.dayNumber)}
               onOpenRecipe={handleOpenRecipe}
@@ -257,7 +305,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Modal de Detalle de Receta */}
+      {/* Modal de Detalle de Receta con Fotos e IA */}
       <RecipeModal
         recipe={selectedRecipe}
         onClose={() => setSelectedRecipe(null)}

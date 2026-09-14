@@ -25,6 +25,14 @@ const DEFAULT_USERS: User[] = [
   }
 ];
 
+function getInitialStartDate(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 const INITIAL_STATE: HouseholdState = {
   householdName: 'Nuestro Hogar',
   users: DEFAULT_USERS,
@@ -32,6 +40,7 @@ const INITIAL_STATE: HouseholdState = {
   customItems: [],
   completedDays: [],
   activeWeek: 1,
+  startDate: getInitialStartDate(),
   updatedAt: new Date().toISOString()
 };
 
@@ -44,9 +53,11 @@ export function getHouseholdState(): HouseholdState {
       return INITIAL_STATE;
     }
     const parsed = JSON.parse(raw);
-    // ensure users array exists
     if (!parsed.users || parsed.users.length === 0) {
       parsed.users = DEFAULT_USERS;
+    }
+    if (!parsed.startDate) {
+      parsed.startDate = getInitialStartDate();
     }
     return parsed;
   } catch {
@@ -59,7 +70,6 @@ export function saveHouseholdState(state: HouseholdState): void {
   try {
     state.updatedAt = new Date().toISOString();
     localStorage.setItem(STORAGE_KEY_STATE, JSON.stringify(state));
-    // Dispatch custom event for cross-component sync
     window.dispatchEvent(new Event('recetario_state_changed'));
   } catch (err) {
     console.error('Error saving state to localStorage', err);
@@ -87,10 +97,69 @@ export function setCurrentSession(user: User | null): void {
   window.dispatchEvent(new Event('recetario_session_changed'));
 }
 
+export function updateUserProfile(
+  userId: string,
+  updates: { name?: string; photoUrl?: string }
+): { success: boolean; user?: User; error?: string } {
+  const state = getHouseholdState();
+  const userIndex = state.users.findIndex((u) => u.id === userId);
+
+  if (userIndex === -1) {
+    return { success: false, error: 'Usuario no encontrado' };
+  }
+
+  const updatedUser = {
+    ...state.users[userIndex],
+    name: updates.name?.trim() || state.users[userIndex].name,
+    photoUrl: updates.photoUrl !== undefined ? updates.photoUrl : state.users[userIndex].photoUrl
+  };
+
+  state.users[userIndex] = updatedUser;
+  saveHouseholdState(state);
+
+  const currentSession = getCurrentSession();
+  if (currentSession?.id === userId) {
+    setCurrentSession(updatedUser);
+  }
+
+  return { success: true, user: updatedUser };
+}
+
+export function updateStartDate(dateStr: string): void {
+  const state = getHouseholdState();
+  state.startDate = dateStr;
+  saveHouseholdState(state);
+}
+
+export function calculateDateForDay(dayNumber: number, startDateStr?: string): {
+  dayName: string;
+  formattedDate: string;
+  isoDate: string;
+} {
+  const baseDate = startDateStr ? new Date(`${startDateStr}T12:00:00`) : new Date();
+  const targetDate = new Date(baseDate);
+  targetDate.setDate(baseDate.getDate() + (dayNumber - 1));
+
+  const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const monthNames = [
+    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+  ];
+
+  const dayName = dayNames[targetDate.getDay()];
+  const dayMonth = `${targetDate.getDate()} de ${monthNames[targetDate.getMonth()]}`;
+
+  return {
+    dayName,
+    formattedDate: `${dayName}, ${dayMonth}`,
+    isoDate: targetDate.toISOString().split('T')[0]
+  };
+}
+
 export function loginUser(cedula: string, pass: string): { success: boolean; user?: User; error?: string } {
   const state = getHouseholdState();
   const cleanCedula = cedula.trim().replace(/\D/g, '');
-  const user = state.users.find(u => u.cedula.replace(/\D/g, '') === cleanCedula);
+  const user = state.users.find((u) => u.cedula.replace(/\D/g, '') === cleanCedula);
 
   if (!user) {
     return { success: false, error: 'Número de cédula no registrado en el hogar.' };
@@ -124,6 +193,7 @@ export function registerNewMember(params: {
   name: string;
   password?: string;
   role?: 'admin' | 'miembro';
+  photoUrl?: string;
 }): { success: boolean; error?: string; user?: User } {
   const state = getHouseholdState();
   const cleanCedula = params.cedula.trim().replace(/\D/g, '');
@@ -136,7 +206,7 @@ export function registerNewMember(params: {
     return { success: false, error: 'El nombre del integrante es obligatorio.' };
   }
 
-  if (state.users.some(u => u.cedula.replace(/\D/g, '') === cleanCedula)) {
+  if (state.users.some((u) => u.cedula.replace(/\D/g, '') === cleanCedula)) {
     return { success: false, error: 'Ya existe un usuario con esta cédula en el hogar.' };
   }
 
@@ -149,6 +219,7 @@ export function registerNewMember(params: {
     password: params.password?.trim() || '1234',
     role: params.role || 'miembro',
     avatarColor: randomColor,
+    photoUrl: params.photoUrl,
     createdAt: new Date().toISOString()
   };
 
@@ -162,10 +233,8 @@ export function toggleMarketItemCheck(itemId: string, userName: string): Househo
   const current = state.checkedItems[itemId];
 
   if (current?.checked) {
-    // Uncheck
     delete state.checkedItems[itemId];
   } else {
-    // Check
     state.checkedItems[itemId] = {
       checked: true,
       checkedBy: userName,
@@ -191,7 +260,7 @@ export function addCustomMarketItem(item: Omit<MarketItem, 'id' | 'isCustom'>): 
 
 export function removeCustomMarketItem(itemId: string): void {
   const state = getHouseholdState();
-  state.customItems = state.customItems.filter(i => i.id !== itemId);
+  state.customItems = state.customItems.filter((i) => i.id !== itemId);
   delete state.checkedItems[itemId];
   saveHouseholdState(state);
 }

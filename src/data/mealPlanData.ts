@@ -50,7 +50,8 @@ export const MEAL_PLAN_14_DAYS: DayMealPlan[] = [
       title: 'Sándwich de huevo rápido (o porción previa)',
       sourceDinnerDay: null,
       isFreshOrPacked: 'Preparación inicial (5 min)',
-      packingTip: 'Como no hay cena previa que haya dejado almuerzo, prepara un sándwich de huevo en 5 min o lleva una porción previamente congelada. Desde esta noche se activa el ciclo.'
+      packingTip: 'Como no hay cena previa que haya dejado almuerzo, prepara un sándwich de huevo en 5 min o lleva una porción previamente congelada. Desde esta noche se activa el ciclo.',
+      recipeId: 'almuerzo-dia-1'
     },
     dinner: {
       title: 'Sudado de pollo con arroz pequeño y ensalada',

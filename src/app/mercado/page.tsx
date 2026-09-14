@@ -24,12 +24,11 @@ import {
   RotateCcw,
   CheckCircle2,
   Filter,
-  Info,
   ChevronDown,
   ChevronUp,
   Sparkles,
-  CalendarClock,
-  Flame,
+  Share2,
+  MessageCircle,
   Check
 } from 'lucide-react';
 
@@ -69,7 +68,6 @@ export default function ShoppingPage() {
   ];
 
   const totalCount = allItems.length;
-  const checkedKeys = Object.keys(household.checkedItems || {});
   const completedCount = allItems.filter((i) => household.checkedItems[i.id]?.checked).length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
@@ -111,6 +109,52 @@ export default function ShoppingPage() {
     setHousehold(getHouseholdState());
   };
 
+  // WhatsApp share generator
+  const handleShareWhatsApp = () => {
+    const pendingItems = allItems.filter((i) => !household.checkedItems[i.id]?.checked);
+
+    if (pendingItems.length === 0) {
+      alert('¡Todo el mercado ya está comprado! No hay pendientes.');
+      return;
+    }
+
+    let text = `🛒 *Lista de Mercado para 15 Días (${household.householdName})*\n`;
+    text += `Faltan *${pendingItems.length}* productos por comprar:\n\n`;
+
+    const proteinas = pendingItems.filter((i) => i.category === 'proteinas');
+    const verduras = pendingItems.filter((i) => i.category === 'verduras');
+    const despensa = pendingItems.filter((i) => i.category === 'frutas_despensa');
+
+    if (proteinas.length > 0) {
+      text += `🥩 *PROTEÍNAS Y GRANOS:*\n`;
+      proteinas.forEach((p) => {
+        text += `• ${p.name}: ${p.buyAmount}\n`;
+      });
+      text += `\n`;
+    }
+
+    if (verduras.length > 0) {
+      text += `🥦 *VERDURAS Y TUBÉRCULOS:*\n`;
+      verduras.forEach((v) => {
+        text += `• ${v.name}: ${v.buyAmount}${v.batch === 'dia8' ? ' (Tanda 2)' : ''}\n`;
+      });
+      text += `\n`;
+    }
+
+    if (despensa.length > 0) {
+      text += `🍊 *FRUTAS Y DESPENSA:*\n`;
+      despensa.forEach((d) => {
+        text += `• ${d.name}: ${d.buyAmount}\n`;
+      });
+      text += `\n`;
+    }
+
+    text += `🇨🇴 _Recetario Quincenal Colombiano - Cenas que resuelven el almuerzo_`;
+
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+  };
+
   const filteredItems = allItems.filter((item) => {
     const isChecked = !!household.checkedItems[item.id]?.checked;
 
@@ -148,13 +192,23 @@ export default function ShoppingPage() {
               </div>
             </div>
 
-            <button
-              onClick={handleReset}
-              className="p-2 text-slate-400 hover:text-brand-700 hover:bg-slate-50 rounded-xl transition-colors"
-              title="Reiniciar lista para la próxima quincena"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleShareWhatsApp}
+                className="p-2 text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
+                title="Compartir pendientes por WhatsApp"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={handleReset}
+                className="p-2 text-slate-400 hover:text-brand-700 hover:bg-slate-50 rounded-xl transition-colors"
+                title="Reiniciar lista para la próxima quincena"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Progress bar */}
@@ -177,13 +231,22 @@ export default function ShoppingPage() {
 
           <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
             <span>🇨🇴 1 libra colombiana = 500 g</span>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Añadir producto
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleShareWhatsApp}
+                className="font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                WhatsApp
+              </button>
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Añadir ítem
+              </button>
+            </div>
           </div>
         </div>
 

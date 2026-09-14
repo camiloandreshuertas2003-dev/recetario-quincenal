@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   getCurrentSession,
   getHouseholdState,
   registerNewMember,
   setCurrentSession,
-  logoutUser,
-  saveHouseholdState
+  updateUserProfile,
+  logoutUser
 } from '@/lib/storage';
 import { User } from '@/types';
 import { TopHeader } from '@/components/TopHeader';
@@ -18,22 +18,32 @@ import {
   Users,
   UserPlus,
   IdCard,
-  ShieldCheck,
   CheckCircle2,
-  Lock,
   LogOut,
-  RefreshCw,
   Home,
-  Sparkles,
-  ShoppingBag,
-  Calendar
+  Camera,
+  Edit3,
+  X,
+  Upload,
+  User as UserIcon,
+  ShieldCheck
 } from 'lucide-react';
 
 export default function HogarPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [household, setHousehold] = useState(getHouseholdState());
+
+  // Modals state
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+
+  // Edit Profile Form State
+  const [editName, setEditName] = useState('');
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+
+  // New Member Form State
   const [newCedula, setNewCedula] = useState('');
   const [newName, setNewName] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -42,14 +52,26 @@ export default function HogarPage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const refresh = () => {
-    setCurrentUser(getCurrentSession());
+    const session = getCurrentSession();
+    setCurrentUser(session);
     setHousehold(getHouseholdState());
+    if (session) {
+      setEditName(session.name);
+      setPreviewPhoto(session.photoUrl || null);
+    }
   };
 
   useEffect(() => {
     refresh();
 
-    const handleSessionChange = () => setCurrentUser(getCurrentSession());
+    const handleSessionChange = () => {
+      const session = getCurrentSession();
+      setCurrentUser(session);
+      if (session) {
+        setEditName(session.name);
+        setPreviewPhoto(session.photoUrl || null);
+      }
+    };
     const handleStateChange = () => setHousehold(getHouseholdState());
 
     window.addEventListener('recetario_session_changed', handleSessionChange);
@@ -70,6 +92,41 @@ export default function HogarPage() {
   const handleSwitchUser = (user: User) => {
     setCurrentSession(user);
     setCurrentUser(user);
+    setEditName(user.name);
+    setPreviewPhoto(user.photoUrl || null);
+  };
+
+  // Image Upload handler to convert file to Base64
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      alert('La imagen es demasiado pesada. Por favor selecciona una imagen de menos de 3MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewPhoto(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    const res = updateUserProfile(currentUser.id, {
+      name: editName.trim(),
+      photoUrl: previewPhoto || undefined
+    });
+
+    if (res.success && res.user) {
+      setSuccessMsg('¡Perfil actualizado con éxito!');
+      setIsEditProfileOpen(false);
+      refresh();
+    }
   };
 
   const handleAddMember = (e: React.FormEvent) => {
@@ -141,17 +198,35 @@ export default function HogarPage() {
           <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-brand-500/10 rounded-full blur-xl pointer-events-none" />
         </div>
 
-        {/* Current User Session Status */}
+        {/* Current User Session with Edit Profile Button */}
         {currentUser && (
           <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div
-                className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white text-base font-extrabold shadow-sm ${
-                  currentUser.avatarColor || 'bg-brand-600'
-                }`}
-              >
-                {currentUser.name.charAt(0).toUpperCase()}
+              <div className="relative">
+                {currentUser.photoUrl ? (
+                  <img
+                    src={currentUser.photoUrl}
+                    alt={currentUser.name}
+                    className="w-12 h-12 rounded-2xl object-cover border-2 border-brand-500 shadow-sm"
+                  />
+                ) : (
+                  <div
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white text-base font-extrabold shadow-sm ${
+                      currentUser.avatarColor || 'bg-brand-600'
+                    }`}
+                  >
+                    {currentUser.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <button
+                  onClick={() => setIsEditProfileOpen(true)}
+                  className="absolute -bottom-1 -right-1 p-1 bg-white text-slate-700 hover:text-brand-600 rounded-full shadow-xs border border-slate-200"
+                  title="Cambiar foto o nombre"
+                >
+                  <Camera className="w-3 h-3" />
+                </button>
               </div>
+
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-bold text-slate-900">
@@ -168,13 +243,24 @@ export default function HogarPage() {
               </div>
             </div>
 
-            <button
-              onClick={handleLogout}
-              className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-xl border border-rose-200 transition-colors flex items-center gap-1"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              Salir
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsEditProfileOpen(true)}
+                className="text-xs font-bold text-slate-700 hover:text-brand-700 bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-xl transition-colors flex items-center gap-1"
+                title="Editar nombre y foto"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Editar</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1.5 rounded-xl border border-rose-200 transition-colors flex items-center gap-1"
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         )}
 
@@ -216,13 +302,21 @@ export default function HogarPage() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold ${
-                        member.avatarColor || 'bg-brand-600'
-                      }`}
-                    >
-                      {member.name.charAt(0)}
-                    </div>
+                    {member.photoUrl ? (
+                      <img
+                        src={member.photoUrl}
+                        alt={member.name}
+                        className="w-9 h-9 rounded-xl object-cover border border-brand-300 shadow-2xs"
+                      />
+                    ) : (
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold ${
+                          member.avatarColor || 'bg-brand-600'
+                        }`}
+                      >
+                        {member.name.charAt(0)}
+                      </div>
+                    )}
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs font-bold text-slate-900">
@@ -230,7 +324,7 @@ export default function HogarPage() {
                         </span>
                         {isCurrent && (
                           <span className="text-[9px] font-bold bg-brand-600 text-white px-1.5 py-0.2 rounded-full">
-                            Activo
+                            Tú
                           </span>
                         )}
                       </div>
@@ -254,6 +348,111 @@ export default function HogarPage() {
           </div>
         </div>
       </main>
+
+      {/* Modal para Editar Perfil (Nombre y Foto) */}
+      {isEditProfileOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                <Edit3 className="w-4 h-4 text-brand-600" />
+                Editar Mi Perfil
+              </h3>
+              <button
+                onClick={() => setIsEditProfileOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="py-4 space-y-4 text-xs">
+              {/* Photo Avatar Preview & Upload */}
+              <div className="flex flex-col items-center">
+                <div className="relative mb-2">
+                  {previewPhoto ? (
+                    <img
+                      src={previewPhoto}
+                      alt="Preview"
+                      className="w-20 h-20 rounded-3xl object-cover border-2 border-brand-500 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-3xl bg-slate-100 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400">
+                      <UserIcon className="w-8 h-8" />
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute -bottom-1 -right-1 bg-brand-600 hover:bg-brand-700 text-white p-2 rounded-xl shadow-md transition-colors"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs font-bold text-brand-700 hover:underline flex items-center gap-1 mt-1"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  Subir foto desde galería
+                </button>
+
+                {previewPhoto && (
+                  <button
+                    type="button"
+                    onClick={() => setPreviewPhoto(null)}
+                    className="text-[10px] text-rose-600 hover:underline mt-1"
+                  >
+                    Quitar foto
+                  </button>
+                )}
+              </div>
+
+              {/* Edit Name */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Tu nombre o apodo
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Ej. Camilo"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsEditProfileOpen(false)}
+                  className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-xs"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Modal para Añadir Nuevo Usuario por Cédula y Contraseña */}
       {isAddUserOpen && (
