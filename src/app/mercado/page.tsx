@@ -7,7 +7,10 @@ import {
   toggleMarketItemCheck,
   addCustomMarketItem,
   removeCustomMarketItem,
-  resetMarketChecklist
+  resetMarketChecklist,
+  updateMarketItemAdjustment,
+  togglePantryItem,
+  getMarketFinancialSummary
 } from '@/lib/storage';
 import { User, MarketItem, MarketCategory } from '@/types';
 import { TopHeader } from '@/components/TopHeader';
@@ -30,14 +33,22 @@ import {
   MessageCircle,
   ShoppingBag,
   Search,
-  DollarSign
+  DollarSign,
+  TrendingDown,
+  TrendingUp,
+  Home,
+  Check
 } from 'lucide-react';
 
 export default function ShoppingPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [household, setHousehold] = useState(getHouseholdState());
   const [selectedCategory, setSelectedCategory] = useState<
-    'todos' | MarketCategory | 'pendientes' | 'dia8'
+    | 'todos'
+    | MarketCategory
+    | 'pendientes'
+    | 'dia8'
+    | 'en_despensa'
   >('todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [isTipsOpen, setIsTipsOpen] = useState(false);
@@ -45,7 +56,7 @@ export default function ShoppingPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('');
-  const [newItemCategory, setNewItemCategory] = useState<MarketCategory>('verduras');
+  const [newItemCategory, setNewItemCategory] = useState<MarketCategory>('verduras_hierbas');
   const [newItemNotes, setNewItemNotes] = useState('');
 
   const refreshState = () => {
@@ -68,32 +79,36 @@ export default function ShoppingPage() {
     ...(household.customItems || [])
   ];
 
-  const totalCount = allItems.length;
-  const completedCount = allItems.filter((i) => household.checkedItems[i.id]?.checked).length;
-  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const adjustments = household.marketAdjustments || {};
 
-  const handleToggleItem = (itemId: string) => {
-    const userName = currentUser ? currentUser.name : 'Miembro del Hogar';
+  const handleToggle = (itemId: string) => {
+    const userName = currentUser ? currentUser.name : 'Alguien';
     toggleMarketItemCheck(itemId, userName);
-    setHousehold(getHouseholdState());
+    refreshState();
   };
 
-  const handleReset = () => {
-    if (confirm('¿Deseas reiniciar todos los checks de la lista para una nueva quincena?')) {
-      resetMarketChecklist();
-      setHousehold(getHouseholdState());
-    }
+  const handleTogglePantry = (itemId: string) => {
+    togglePantryItem(itemId);
+    refreshState();
   };
 
-  const handleAddItem = (e: React.FormEvent) => {
+  const handleUpdateRealData = (
+    itemId: string,
+    data: { realPriceCop?: number; realAmountBought?: string }
+  ) => {
+    updateMarketItemAdjustment(itemId, data);
+    refreshState();
+  };
+
+  const handleAddCustom = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItemName.trim()) return;
 
     addCustomMarketItem({
-      name: newItemName.trim(),
       category: newItemCategory,
+      name: newItemName.trim(),
+      calculatedUsage: 'Ingrediente añadido por el hogar',
       buyAmount: newItemAmount.trim() || '1 unidad',
-      calculatedUsage: 'Ítem adicional del hogar',
       notes: newItemNotes.trim() || undefined,
       batch: 'inicio'
     });
@@ -102,210 +117,216 @@ export default function ShoppingPage() {
     setNewItemAmount('');
     setNewItemNotes('');
     setIsAddModalOpen(false);
-    setHousehold(getHouseholdState());
+    refreshState();
   };
 
-  const handleDeleteCustomItem = (itemId: string) => {
-    removeCustomMarketItem(itemId);
-    setHousehold(getHouseholdState());
-  };
+  // Financial summary calculation
+  const financialSummary = getMarketFinancialSummary(household, allItems);
 
-  const handleShareWhatsApp = () => {
-    const pendingItems = allItems.filter((i) => !household.checkedItems[i.id]?.checked);
-
-    if (pendingItems.length === 0) {
-      alert('¡Todo el mercado ya está comprado! No hay pendientes.');
-      return;
-    }
-
-    let text = `🛒 *Lista de Mercado (Nuestro menú)*\n`;
-    text += `Pendientes por comprar (${pendingItems.length} de ${totalCount} productos):\n\n`;
-
-    const proteinas = pendingItems.filter((i) => i.category === 'proteinas');
-    const verduras = pendingItems.filter((i) => i.category === 'verduras');
-    const despensa = pendingItems.filter((i) => i.category === 'frutas_despensa');
-
-    if (proteinas.length > 0) {
-      text += `🥩 *PROTEÍNAS Y GRANOS:*\n`;
-      proteinas.forEach((p) => {
-        text += `[ ] ${p.name} -> ${p.buyAmount}\n`;
-      });
-      text += `\n`;
-    }
-
-    if (verduras.length > 0) {
-      text += `🥦 *VERDURAS Y TUBÉRCULOS:*\n`;
-      verduras.forEach((v) => {
-        text += `[ ] ${v.name} -> ${v.buyAmount}${v.batch === 'dia8' ? ' (Tanda 2 Día 8)' : ''}\n`;
-      });
-      text += `\n`;
-    }
-
-    if (despensa.length > 0) {
-      text += `🍊 *FRUTAS Y DESPENSA:*\n`;
-      despensa.forEach((d) => {
-        text += `[ ] ${d.name} -> ${d.buyAmount}\n`;
-      });
-      text += `\n`;
-    }
-
-    text += `🇨🇴 _Nuestro menú • Cocina inteligente para dos_`;
-
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(waUrl, '_blank');
-  };
-
+  // Filtering
   const filteredItems = allItems.filter((item) => {
-    const isChecked = !!household.checkedItems[item.id]?.checked;
-
     const matchesSearch =
-      !searchTerm.trim() ||
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.buyAmount.toLowerCase().includes(searchTerm.toLowerCase());
+      item.calculatedUsage.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.notes && item.notes.toLowerCase().includes(searchTerm.toLowerCase()));
 
     if (!matchesSearch) return false;
 
-    if (selectedCategory === 'pendientes') {
-      return !isChecked;
+    const isChecked = !!household.checkedItems[item.id]?.checked;
+    const isInPantry = !!adjustments[item.id]?.inPantry;
+
+    if (selectedCategory === 'en_despensa') {
+      return isInPantry;
     }
+
+    // In other categories, we can show items, but let user filter by pending or batch
+    if (selectedCategory === 'pendientes') {
+      return !isChecked && !isInPantry;
+    }
+
     if (selectedCategory === 'dia8') {
       return item.batch === 'dia8';
     }
+
     if (selectedCategory === 'todos') {
       return true;
     }
+
+    // Category mapping for compatibility
+    if (selectedCategory === 'proteinas') {
+      return item.category === 'carnes_pollo' || item.category === 'pescados_mariscos' || item.category === 'proteinas';
+    }
+    if (selectedCategory === 'verduras') {
+      return item.category === 'verduras_hierbas' || item.category === 'verduras';
+    }
+    if (selectedCategory === 'frutas_despensa') {
+      return item.category === 'frutas' || item.category === 'bebidas' || item.category === 'despensa_condimentos' || item.category === 'frutas_despensa';
+    }
+
     return item.category === selectedCategory;
   });
 
+  const handleShareWhatsApp = () => {
+    const pendingItems = allItems.filter(
+      (item) => !household.checkedItems[item.id]?.checked && !adjustments[item.id]?.inPantry
+    );
+
+    let text = `🛒 *LISTA DE MERCADO - ${household.householdName || 'Nuestro menú'}*\n`;
+    text += `Total estimado: $${financialSummary.totalEstimated.toLocaleString('es-CO')} COP\n`;
+    text += `Pendientes: ${pendingItems.length} artículos\n\n`;
+
+    const grouped: Record<string, MarketItem[]> = {};
+    pendingItems.forEach((item) => {
+      const cat = item.category || 'Otros';
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(item);
+    });
+
+    for (const [category, items] of Object.entries(grouped)) {
+      text += `*[${category.toUpperCase().replace('_', ' ')}]*\n`;
+      items.forEach((item) => {
+        text += `• ${item.name} - ${item.buyAmount}\n`;
+      });
+      text += `\n`;
+    }
+
+    text += `_Generado con la App Nuestro menú_`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
   return (
-    <div className="flex-1 flex flex-col">
-      <TopHeader
-        user={currentUser}
-        servingMultiplier={household.servingMultiplier || 1.0}
-        onRefresh={refreshState}
-      />
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-28">
+      <TopHeader />
 
-      <main className="flex-1 px-4 py-3.5 space-y-3.5">
-        {/* Header, Progress & Supermarket Mode Launch Button */}
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-bold">
-                <ShoppingCart className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-black text-slate-900 leading-tight">
-                  Mercado para 15 Días
-                </h2>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  2 personas • 14 cenas (4p) + 14 desayunos
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleShareWhatsApp}
-                className="p-2 text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors"
-                title="Compartir pendientes por WhatsApp"
-              >
-                <MessageCircle className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={handleReset}
-                className="p-2 text-slate-400 hover:text-brand-700 hover:bg-slate-50 rounded-xl transition-colors"
-                title="Reiniciar lista para la próxima quincena"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-            </div>
+      <main className="max-w-lg md:max-w-xl mx-auto px-4 pt-4 space-y-4">
+        {/* Page Title & Supermarket Mode Banner */}
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <ShoppingCart className="w-6 h-6 sm:w-7 sm:h-7 text-brand-600" />
+              Mercado Quincenal
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 font-medium">
+              Cantidades exactas calculadas para 2 personas sin desperdicios
+            </p>
           </div>
 
-          {/* Supermarket Mode CTA */}
           <button
             onClick={() => setIsSupermarketMode(true)}
-            className="w-full mt-2 py-2.5 px-3 bg-gradient-to-r from-slate-900 to-brand-950 hover:from-slate-800 hover:to-brand-900 text-white rounded-2xl flex items-center justify-between shadow-xs transition-all active:scale-[0.99]"
+            className="px-3.5 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs sm:text-sm shadow-md flex items-center gap-1.5 shrink-0 transition-transform active:scale-95"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-brand-500 text-slate-950 flex items-center justify-center">
-                <ShoppingBag className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-xs font-extrabold tracking-wide">
-                Activar Modo Supermercado
-              </span>
-            </div>
-            <span className="text-[11px] text-brand-300 font-bold">
-              Una mano →
-            </span>
+            <ShoppingBag className="w-4 h-4" />
+            <span>Modo Plaza</span>
           </button>
+        </div>
+
+        {/* Financial & Progress Summary Card */}
+        <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-3.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider">
+              Control de Presupuesto y Compras
+            </span>
+            <span className="text-xs sm:text-sm font-black text-brand-700 bg-brand-50 px-2.5 py-1 rounded-xl border border-brand-200">
+              {financialSummary.itemsBoughtCount} de {financialSummary.itemsToBuyTotal} comprados ({financialSummary.progressPercentage}%)
+            </span>
+          </div>
 
           {/* Progress bar */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-xs mb-1.5 font-semibold">
-              <span className="text-slate-700">
-                Progreso: <strong>{completedCount} de {totalCount} comprados</strong>
-              </span>
-              <span className="text-brand-700 font-extrabold">
-                {progressPercent}%
-              </span>
-            </div>
-            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-              <div
-                className="h-full bg-gradient-to-r from-brand-500 to-emerald-600 rounded-full transition-all duration-300 shadow-xs"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+          <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+            <div
+              className="bg-brand-600 h-full transition-all duration-500 rounded-full"
+              style={{ width: `${financialSummary.progressPercentage}%` }}
+            />
           </div>
 
-          {/* Budget & Equivalences Banner */}
-          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-            <span className="flex items-center gap-1 font-semibold text-slate-700">
-              <DollarSign className="w-3.5 h-3.5 text-brand-600 -mr-1" />
-              Presupuesto est.: ~$195.000 COP
-            </span>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Añadir ítem
-            </button>
+          {/* Financial Metrics Grid */}
+          <div className="grid grid-cols-3 gap-2.5 pt-1 text-center">
+            <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-100">
+              <span className="block text-[11px] sm:text-xs font-bold text-slate-500">
+                Presupuesto Est.
+              </span>
+              <span className="text-sm sm:text-base font-black text-slate-800">
+                $${financialSummary.totalEstimated.toLocaleString('es-CO')}
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-2xl bg-emerald-50 border border-emerald-100">
+              <span className="block text-[11px] sm:text-xs font-bold text-emerald-800">
+                Total Real Pagado
+              </span>
+              <span className="text-sm sm:text-base font-black text-emerald-950">
+                $${financialSummary.totalRealPaid.toLocaleString('es-CO')}
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-2xl bg-amber-50 border border-amber-100">
+              <span className="block text-[11px] sm:text-xs font-bold text-amber-800 flex items-center justify-center gap-1">
+                <Home className="w-3 h-3" />
+                En Despensa
+              </span>
+              <span className="text-sm sm:text-base font-black text-amber-950">
+                {financialSummary.itemsInPantryCount} ítems
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* Action Buttons: WhatsApp & Reset */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleShareWhatsApp}
+            className="flex-1 py-2.5 px-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xs flex items-center justify-center gap-2 transition-all"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Compartir por WhatsApp</span>
+          </button>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="py-2.5 px-3.5 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-900 font-bold text-xs sm:text-sm border border-brand-200 flex items-center justify-center gap-1.5 transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Añadir</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (confirm('¿Deseas reiniciar todas las casillas de compra?')) {
+                resetMarketChecklist();
+                refreshState();
+              }
+            }}
+            className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all"
+            title="Reiniciar lista"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Search Bar */}
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <Search className="w-4 h-4" />
-          </div>
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           <input
             type="text"
+            placeholder="Buscar alimento, corte o receta..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar producto en la lista (pollo, papa, leche...)"
-            className="w-full bg-white border border-slate-200/80 rounded-2xl pl-10 pr-3.5 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-2xs"
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500 shadow-2xs"
           />
         </div>
 
-        {/* Tips de Organización Acordeón */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-2xs">
+        {/* Organization Tips Accordion */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
           <button
             onClick={() => setIsTipsOpen(!isTipsOpen)}
-            className="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+            className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-100 text-brand-800 flex items-center justify-center font-bold text-xs">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-slate-900">
-                  Organización para que no falte comida
-                </h4>
-                <p className="text-[11px] text-slate-500">
-                  Pollo congelado por porciones y compras en 2 tandas
-                </p>
-              </div>
+              <Sparkles className="w-4 h-4 text-brand-600" />
+              <span className="text-sm sm:text-base font-bold text-slate-900">
+                Consejos de Porcionado, Conservación y Bebidas
+              </span>
             </div>
             {isTipsOpen ? (
               <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -315,7 +336,7 @@ export default function ShoppingPage() {
           </button>
 
           {isTipsOpen && (
-            <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-3">
+            <div className="px-4 pb-4 pt-1 border-t border-slate-100 space-y-3">
               {ORGANIZATION_TIPS.map((tip, idx) => (
                 <div
                   key={idx}
@@ -339,68 +360,146 @@ export default function ShoppingPage() {
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none">
           <button
             onClick={() => setSelectedCategory('todos')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
               selectedCategory === 'todos'
                 ? 'bg-brand-600 text-white shadow-xs'
-                : 'bg-white border border-slate-200 text-slate-600'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
             }`}
           >
-            Todos ({totalCount})
+            Todos ({allItems.length})
           </button>
 
           <button
             onClick={() => setSelectedCategory('pendientes')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
               selectedCategory === 'pendientes'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            Por comprar ({allItems.filter((i) => !household.checkedItems[i.id]?.checked && !adjustments[i.id]?.inPantry).length})
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('en_despensa')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 flex items-center gap-1 ${
+              selectedCategory === 'en_despensa'
                 ? 'bg-amber-600 text-white shadow-xs'
-                : 'bg-white border border-slate-200 text-slate-600'
+                : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200'
             }`}
           >
-            Solo Pendientes ({totalCount - completedCount})
+            <Home className="w-3.5 h-3.5" />
+            <span>En Despensa ({financialSummary.itemsInPantryCount})</span>
           </button>
 
           <button
-            onClick={() => setSelectedCategory('proteinas')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-              selectedCategory === 'proteinas'
+            onClick={() => setSelectedCategory('carnes_pollo')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'carnes_pollo'
                 ? 'bg-brand-600 text-white shadow-xs'
-                : 'bg-white border border-slate-200 text-slate-600'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
             }`}
           >
-            🥩 Proteínas y Granos
+            🍗 Carnes y Pollo
           </button>
 
           <button
-            onClick={() => setSelectedCategory('verduras')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-              selectedCategory === 'verduras'
+            onClick={() => setSelectedCategory('pescados_mariscos')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'pescados_mariscos'
                 ? 'bg-brand-600 text-white shadow-xs'
-                : 'bg-white border border-slate-200 text-slate-600'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
             }`}
           >
-            🥦 Verduras y Tubérculos
+            🐟 Pescados y Mariscos
           </button>
 
           <button
-            onClick={() => setSelectedCategory('frutas_despensa')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-              selectedCategory === 'frutas_despensa'
+            onClick={() => setSelectedCategory('huevos_lacteos')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'huevos_lacteos'
                 ? 'bg-brand-600 text-white shadow-xs'
-                : 'bg-white border border-slate-200 text-slate-600'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
             }`}
           >
-            🍊 Frutas y Despensa
+            🥚 Huevos y Lácteos
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('granos_cereales')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'granos_cereales'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            🌾 Granos y Cereales
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('tuberculos_harinas')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'tuberculos_harinas'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            🥔 Tubérculos y Plátanos
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('verduras_hierbas')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'verduras_hierbas'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            🥦 Verduras y Hierbas
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('frutas')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'frutas'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            🍎 Frutas
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('bebidas')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'bebidas'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            ☕ Bebidas e Infusiones
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('despensa_condimentos')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
+              selectedCategory === 'despensa_condimentos'
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            🧂 Despensa y Sal
           </button>
 
           <button
             onClick={() => setSelectedCategory('dia8')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shrink-0 ${
               selectedCategory === 'dia8'
-                ? 'bg-brand-600 text-white shadow-xs'
-                : 'bg-white border border-slate-200 text-slate-600'
+                ? 'bg-amber-600 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
             }`}
           >
             📅 Tanda 2 (Día 8)
@@ -410,27 +509,42 @@ export default function ShoppingPage() {
         {/* Shopping Items List */}
         <div className="space-y-2.5">
           {filteredItems.length === 0 ? (
-            <div className="text-center py-10 bg-white rounded-3xl border border-slate-200 p-6">
-              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-              <p className="text-xs font-bold text-slate-800">
-                ¡No hay productos pendientes en esta categoría!
+            <div className="p-8 text-center bg-white rounded-3xl border border-slate-200 space-y-2">
+              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
+              <p className="text-base font-black text-slate-800">
+                No hay productos pendientes en esta vista
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Todo comprado o filtro sin resultados.
+              <p className="text-xs sm:text-sm text-slate-500">
+                Prueba cambiando de filtro o busca con otra palabra clave.
               </p>
             </div>
           ) : (
             filteredItems.map((item) => {
-              const checkData = household.checkedItems[item.id];
+              const isChecked = !!household.checkedItems[item.id]?.checked;
+              const checkInfo = household.checkedItems[item.id];
+              const adj = adjustments[item.id];
+
               return (
                 <ShoppingItemRow
                   key={item.id}
                   item={item}
-                  isChecked={!!checkData?.checked}
-                  checkedBy={checkData?.checkedBy}
-                  checkedAt={checkData?.checkedAt}
-                  onToggle={() => handleToggleItem(item.id)}
-                  onDelete={item.isCustom ? () => handleDeleteCustomItem(item.id) : undefined}
+                  isChecked={isChecked}
+                  checkedBy={checkInfo?.checkedBy}
+                  checkedAt={checkInfo?.checkedAt}
+                  realPriceCop={adj?.realPriceCop}
+                  realAmountBought={adj?.realAmountBought}
+                  inPantry={adj?.inPantry}
+                  onToggle={() => handleToggle(item.id)}
+                  onTogglePantry={() => handleTogglePantry(item.id)}
+                  onUpdateRealData={(data) => handleUpdateRealData(item.id, data)}
+                  onDelete={
+                    item.isCustom
+                      ? () => {
+                          removeCustomMarketItem(item.id);
+                          refreshState();
+                        }
+                      : undefined
+                  }
                 />
               );
             })
@@ -438,95 +552,89 @@ export default function ShoppingPage() {
         </div>
       </main>
 
-      {/* Supermarket Mode Fullscreen View */}
-      {isSupermarketMode && (
-        <SupermarketModeModal
-          items={allItems}
-          checkedItems={household.checkedItems}
-          onToggleItem={handleToggleItem}
-          onClose={() => setIsSupermarketMode(false)}
-        />
-      )}
-
-      {/* Modal para Añadir Producto Personalizado */}
+      {/* Add Custom Item Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 animate-in zoom-in-95 duration-200">
-            <h3 className="text-sm font-bold text-slate-900 mb-3">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-xl border border-slate-200">
+            <h3 className="text-lg font-black text-slate-900">
               Añadir Producto al Mercado
             </h3>
 
-            <form onSubmit={handleAddItem} className="space-y-3 text-xs">
+            <form onSubmit={handleAddCustom} className="space-y-3 text-xs sm:text-sm">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">
-                  Nombre del producto
+                  Nombre del producto:
                 </label>
                 <input
                   type="text"
                   required
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
-                  placeholder="Ej. Café molido, Manzanas..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  placeholder="Ej. Arepas de chócolo, Panela..."
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 font-bold focus:ring-2 focus:ring-brand-500"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Cantidad a comprar
-                  </label>
-                  <input
-                    type="text"
-                    value={newItemAmount}
-                    onChange={(e) => setNewItemAmount(e.target.value)}
-                    placeholder="Ej. 500 g o 1 bolsa"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Categoría
-                  </label>
-                  <select
-                    value={newItemCategory}
-                    onChange={(e) => setNewItemCategory(e.target.value as MarketCategory)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  >
-                    <option value="proteinas">Proteínas / Granos</option>
-                    <option value="verduras">Verduras / Tubérculos</option>
-                    <option value="frutas_despensa">Frutas / Despensa</option>
-                  </select>
-                </div>
               </div>
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">
-                  Nota u observación (opcional)
+                  Cantidad o Gramos a comprar:
+                </label>
+                <input
+                  type="text"
+                  value={newItemAmount}
+                  onChange={(e) => setNewItemAmount(e.target.value)}
+                  placeholder="Ej. 500 g, 1 libra, 2 paquetes..."
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 font-bold focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Categoría:
+                </label>
+                <select
+                  value={newItemCategory}
+                  onChange={(e) => setNewItemCategory(e.target.value as MarketCategory)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 font-bold focus:ring-2 focus:ring-brand-500"
+                >
+                  <option value="carnes_pollo">Carnes y Pollo</option>
+                  <option value="pescados_mariscos">Pescados y Mariscos</option>
+                  <option value="huevos_lacteos">Huevos y Lácteos</option>
+                  <option value="granos_cereales">Granos y Cereales</option>
+                  <option value="tuberculos_harinas">Tubérculos y Harinas</option>
+                  <option value="verduras_hierbas">Verduras y Hierbas</option>
+                  <option value="frutas">Frutas</option>
+                  <option value="bebidas">Bebidas e Infusiones</option>
+                  <option value="despensa_condimentos">Despensa y Condimentos</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Nota adicional (opcional):
                 </label>
                 <input
                   type="text"
                   value={newItemNotes}
                   onChange={(e) => setNewItemNotes(e.target.value)}
-                  placeholder="Ej. Marca preferida, comprar en plaza..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  placeholder="Ej. Marca preferida o lugar de compra"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 font-bold focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-xs"
+                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-xs"
                 >
-                  Guardar Producto
+                  Añadir al mercado
                 </button>
               </div>
             </form>
@@ -534,7 +642,17 @@ export default function ShoppingPage() {
         </div>
       )}
 
-      <BottomNav pendingMarketCount={totalCount - completedCount} />
+      {/* Supermarket Fullscreen Mode Modal */}
+      {isSupermarketMode && (
+        <SupermarketModeModal
+          items={allItems.filter((i) => !adjustments[i.id]?.inPantry)}
+          checkedItems={household.checkedItems}
+          onToggle={handleToggle}
+          onClose={() => setIsSupermarketMode(false)}
+        />
+      )}
+
+      <BottomNav />
     </div>
   );
 }

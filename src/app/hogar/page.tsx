@@ -10,13 +10,13 @@ import {
   setCurrentSession,
   updateUserProfile,
   logoutUser,
-  deleteFridgeNote
+  setRoutineMode,
+  togglePantryItem
 } from '@/lib/storage';
 import { User } from '@/types';
 import { TopHeader } from '@/components/TopHeader';
 import { BottomNav } from '@/components/BottomNav';
 import { SHOPPING_LIST_INITIAL } from '@/data/shoppingData';
-import { FridgeNotesModal } from '@/components/FridgeNotesModal';
 import {
   Users,
   UserPlus,
@@ -30,11 +30,48 @@ import {
   Upload,
   User as UserIcon,
   ShieldCheck,
-  StickyNote,
   Trash2,
   Plus,
-  AlertTriangle
+  AlertTriangle,
+  Clock,
+  Sparkles,
+  PackageCheck,
+  Check
 } from 'lucide-react';
+
+const PANTRY_QUICK_STAPLES = [
+  { id: 'mkt-15', name: 'Arroz blanco', icon: '🌾' },
+  { id: 'mkt-42', name: 'Sal común', icon: '🧂' },
+  { id: 'mkt-40', name: 'Aceite vegetal', icon: '🫒' },
+  { id: 'mkt-37', name: 'Café colombiano', icon: '☕' },
+  { id: 'mkt-38', name: 'Chocolate tradicional', icon: '🍫' },
+  { id: 'mkt-29', name: 'Ajo fresco', icon: '🧄' },
+  { id: 'mkt-16', name: 'Avena en hojuelas', icon: '🥣' },
+  { id: 'mkt-43', name: 'Especias básicas', icon: '🌿' },
+  { id: 'mkt-41', name: 'Mantequilla', icon: '🧈' },
+  { id: 'mkt-21', name: 'Arepas campesinas', icon: '🫓' }
+];
+
+const ROUTINE_OPTIONS = [
+  {
+    id: 'dinner_to_next_lunch',
+    title: 'Cocino en la noche y dejo listo el almuerzo de mañana',
+    badge: 'Recomendado • Activo',
+    desc: 'Cena de 4 porciones: 2 se cenan hoy, 2 se empacan herméticas para llevar al trabajo. 0 min cocción al mediodía.'
+  },
+  {
+    id: 'lunch_and_dinner_separate',
+    title: 'Cocino almuerzo y cena por separado',
+    badge: 'Alternativa',
+    desc: 'Para quienes trabajan en casa y disponen de tiempo al mediodía y en la noche.'
+  },
+  {
+    id: 'batch_cooking_twice_week',
+    title: 'Cocino por lotes 2–3 veces por semana',
+    badge: 'Batch cooking',
+    desc: 'Preparar bases (hogao, granos, proteínas al horno) el domingo y miércoles.'
+  }
+];
 
 export default function HogarPage() {
   const router = useRouter();
@@ -45,7 +82,6 @@ export default function HogarPage() {
   // Modals state
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const [isFridgeNotesOpen, setIsFridgeNotesOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<User | null>(null);
 
   // Edit Profile Form State
@@ -99,19 +135,12 @@ export default function HogarPage() {
     router.push('/login');
   };
 
-  const handleSwitchUser = (user: User) => {
-    setCurrentSession(user);
-    setCurrentUser(user);
-    setEditName(user.name);
-    setPreviewPhoto(user.photoUrl || null);
-  };
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 3 * 1024 * 1024) {
-      alert('La imagen es demasiado pesada. Por favor selecciona una imagen de menos de 3MB.');
+    if (file.size > 2 * 1024 * 1024) {
+      alert('La imagen no debe superar los 2MB');
       return;
     }
 
@@ -127,19 +156,19 @@ export default function HogarPage() {
     if (!currentUser) return;
 
     const res = updateUserProfile(currentUser.id, {
-      name: editName.trim(),
+      name: editName,
       photoUrl: previewPhoto || undefined
     });
 
-    if (res.success && res.user) {
-      setSuccessMsg('¡Perfil actualizado con éxito!');
+    if (res.success) {
       setIsEditProfileOpen(false);
       refresh();
-      setTimeout(() => setSuccessMsg(null), 3000);
+    } else {
+      alert(res.error || 'Error al actualizar perfil');
     }
   };
 
-  const handleAddMember = (e: React.FormEvent) => {
+  const handleCreateMember = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -151,91 +180,56 @@ export default function HogarPage() {
       role: newRole
     });
 
-    if (res.success && res.user) {
-      setSuccessMsg(`¡${res.user.name} ha sido añadido al hogar!`);
-      setNewCedula('');
-      setNewName('');
-      setNewPassword('');
+    if (!res.success) {
+      setErrorMsg(res.error || 'Error al registrar el integrante');
+      return;
+    }
+
+    setSuccessMsg(`¡${res.user?.name} ha sido añadido exitosamente!`);
+    setNewCedula('');
+    setNewName('');
+    setNewPassword('');
+    setTimeout(() => {
       setIsAddUserOpen(false);
+      setSuccessMsg(null);
       refresh();
-      setTimeout(() => setSuccessMsg(null), 3000);
-    } else {
-      setErrorMsg(res.error || 'Error al añadir el integrante.');
-    }
+    }, 1200);
   };
 
-  const handleConfirmDeleteMember = () => {
+  const handleConfirmDelete = () => {
     if (!memberToDelete) return;
+
     const res = deleteMember(memberToDelete.id);
-    if (res.success) {
-      setSuccessMsg(`${memberToDelete.name} fue eliminado del hogar.`);
+    if (!res.success) {
+      alert(res.error || 'No se pudo eliminar el integrante.');
+    } else {
       setMemberToDelete(null);
       refresh();
-      setTimeout(() => setSuccessMsg(null), 3000);
-    } else {
-      setErrorMsg(res.error || 'No se pudo eliminar el integrante.');
-      setMemberToDelete(null);
     }
   };
 
-  const totalMarketItems = SHOPPING_LIST_INITIAL.length + (household.customItems?.length || 0);
-  const checkedMarketCount = Object.keys(household.checkedItems || {}).length;
-  const pendingMarketCount = Math.max(0, totalMarketItems - checkedMarketCount);
+  const handleTogglePantryStaple = (itemId: string) => {
+    togglePantryItem(itemId);
+    refresh();
+  };
+
+  const adjustments = household.marketAdjustments || {};
 
   return (
-    <div className="flex-1 flex flex-col">
-      <TopHeader user={currentUser} onLogout={handleLogout} />
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-28">
+      <TopHeader />
 
-      <main className="flex-1 px-3 sm:px-5 py-4 space-y-4">
-        {/* Household Overview Header */}
-        <div className="bg-gradient-to-tr from-slate-900 via-slate-800 to-brand-950 text-white rounded-3xl p-5 sm:p-6 shadow-lg relative overflow-hidden">
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 text-brand-400 text-xs sm:text-sm font-bold uppercase tracking-wider mb-1">
-              <Home className="w-4 h-4" />
-              <span>Ecosistema Compartido</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black">{household.householdName}</h2>
-            <p className="text-sm text-slate-300 mt-1 leading-relaxed">
-              Todos los miembros comparten el recetario, la lista de mercado en tiempo real y el tablero de notas.
-            </p>
-
-            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-700/60 text-center">
-              <div className="bg-white/10 rounded-2xl p-2.5">
-                <span className="block text-lg sm:text-xl font-extrabold text-white">
-                  {household.users.length}
-                </span>
-                <span className="text-xs text-slate-300 font-semibold">Integrantes</span>
-              </div>
-              <div className="bg-white/10 rounded-2xl p-2.5">
-                <span className="block text-lg sm:text-xl font-extrabold text-brand-400">
-                  {checkedMarketCount}
-                </span>
-                <span className="text-xs text-slate-300 font-semibold">Mercado OK</span>
-              </div>
-              <div className="bg-white/10 rounded-2xl p-2.5">
-                <span className="block text-lg sm:text-xl font-extrabold text-warm-400">
-                  {household.completedDays.length} / 14
-                </span>
-                <span className="text-xs text-slate-300 font-semibold">Días Cocinados</span>
-              </div>
-            </div>
-          </div>
-          <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-brand-500/15 rounded-full blur-2xl pointer-events-none" />
+      <main className="max-w-lg md:max-w-xl mx-auto px-4 pt-4 space-y-4">
+        {/* Header Title */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <Home className="w-6 h-6 sm:w-7 sm:h-7 text-brand-600" />
+            Organización del Hogar
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 font-medium">
+            Configuración de rutina, comensales e inventario de despensa
+          </p>
         </div>
-
-        {/* Feedback messages */}
-        {successMsg && (
-          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-bold flex items-center gap-2 animate-in fade-in">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <span>{successMsg}</span>
-          </div>
-        )}
-        {errorMsg && (
-          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 text-sm font-bold flex items-center gap-2 animate-in fade-in">
-            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
 
         {/* Current User Session Card */}
         {currentUser && (
@@ -304,7 +298,105 @@ export default function HogarPage() {
           </div>
         )}
 
-        {/* Members List with CREATION & DELETION */}
+        {/* 1. SELECCIÓN DE RUTINA: ¿CÓMO QUIERES ORGANIZAR TUS COMIDAS? */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-brand-600" />
+            <h3 className="text-base sm:text-lg font-black text-slate-900">
+              ¿Cómo quieres organizar tus comidas?
+            </h3>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-600">
+            Define la rutina que rige el planificador quincenal y el cálculo de almuerzos:
+          </p>
+
+          <div className="space-y-2.5 pt-1">
+            {ROUTINE_OPTIONS.map((opt) => {
+              const isSelected = (household.routineMode || 'dinner_to_next_lunch') === opt.id;
+              return (
+                <div
+                  key={opt.id}
+                  onClick={() => setRoutineMode(opt.id)}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-brand-50/80 border-brand-500 ring-2 ring-brand-500/20 shadow-xs'
+                      : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-sm sm:text-base font-black text-slate-900">
+                      {opt.title}
+                    </span>
+                    <span
+                      className={`text-xs font-black px-2.5 py-0.5 rounded-md shrink-0 ${
+                        isSelected
+                          ? 'bg-brand-600 text-white shadow-2xs'
+                          : 'bg-slate-200 text-slate-700'
+                      }`}
+                    >
+                      {opt.badge}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                    {opt.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. INVENTARIO RÁPIDO DE DESPENSA ("¿QUÉ YA TIENES EN CASA?") */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <PackageCheck className="w-5 h-5 text-amber-600" />
+              <h3 className="text-base sm:text-lg font-black text-slate-900">
+                Inventario de Despensa
+              </h3>
+            </div>
+            <span className="text-xs font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-xl">
+              Toca para marcar
+            </span>
+          </div>
+
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Marca los ingredientes básicos que ya tienes en tu alacena. Se descontarán automáticamente de la lista de compras del mercado para evitar sobrecostos:
+          </p>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            {PANTRY_QUICK_STAPLES.map((staple) => {
+              const inPantry = !!adjustments[staple.id]?.inPantry;
+
+              return (
+                <button
+                  key={staple.id}
+                  type="button"
+                  onClick={() => handleTogglePantryStaple(staple.id)}
+                  className={`p-2.5 rounded-xl border text-left text-xs sm:text-sm font-bold transition-all flex items-center justify-between gap-1.5 ${
+                    inPantry
+                      ? 'bg-amber-100 border-amber-300 text-amber-950 shadow-2xs font-black'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5 truncate">
+                    <span>{staple.icon}</span>
+                    <span className="truncate">{staple.name}</span>
+                  </span>
+                  <div
+                    className={`w-5 h-5 rounded-md flex items-center justify-center text-xs shrink-0 ${
+                      inPantry ? 'bg-amber-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {inPantry && <Check className="w-3.5 h-3.5 stroke-[3px]" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. MIEMBROS DEL HOGAR */}
         <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -322,284 +414,160 @@ export default function HogarPage() {
             </button>
           </div>
 
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Puedes agregar nuevos integrantes o eliminar usuarios que ya no pertenezcan al hogar.
-          </p>
-
           <div className="space-y-3">
             {household.users.map((member) => {
-              const isCurrent = currentUser?.id === member.id;
-              const canDelete = household.users.length > 1;
+              const isCurrentUser = currentUser?.id === member.id;
 
               return (
                 <div
                   key={member.id}
-                  className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-2 ${
-                    isCurrent
-                      ? 'bg-brand-50/70 border-brand-300 ring-2 ring-brand-300/60'
-                      : 'bg-slate-50 border-slate-200/90 hover:bg-white'
-                  }`}
+                  className="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50 flex items-center justify-between gap-2"
                 >
                   <div className="flex items-center gap-3">
                     {member.photoUrl ? (
                       <img
                         src={member.photoUrl}
                         alt={member.name}
-                        className="w-11 h-11 rounded-2xl object-cover border border-brand-300 shadow-2xs"
+                        className="w-10 h-10 rounded-xl object-cover border border-slate-300"
                       />
                     ) : (
                       <div
-                        className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white text-sm font-black ${
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold ${
                           member.avatarColor || 'bg-brand-600'
                         }`}
                       >
-                        {member.name.charAt(0)}
+                        {member.name.charAt(0).toUpperCase()}
                       </div>
                     )}
+
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm sm:text-base font-extrabold text-slate-900">
+                        <span className="font-extrabold text-sm sm:text-base text-slate-900">
                           {member.name}
                         </span>
-                        {isCurrent && (
-                          <span className="text-xs font-black bg-brand-600 text-white px-2 py-0.5 rounded-full">
+                        {isCurrentUser && (
+                          <span className="text-[10px] font-extrabold bg-brand-200/80 text-brand-900 px-2 py-0.2 rounded-md">
                             Tú
                           </span>
                         )}
-                        <span className="text-xs font-semibold text-slate-500 capitalize">
-                          ({member.role})
-                        </span>
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-500 font-mono mt-0.5">
-                        Cédula: {member.cedula}
-                      </p>
+                      <span className="text-xs text-slate-500 font-mono">
+                        C.C. {member.cedula} • {member.role}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {!isCurrent && (
+                  <div className="flex items-center gap-1">
+                    {!isCurrentUser && (
                       <button
-                        onClick={() => handleSwitchUser(member)}
-                        className="text-xs sm:text-sm font-bold text-brand-700 hover:text-brand-900 bg-white hover:bg-brand-50 border border-slate-300 px-3 py-1.5 rounded-xl shadow-2xs transition-colors"
+                        onClick={() => {
+                          setCurrentSession(member);
+                          refresh();
+                        }}
+                        className="text-xs font-bold text-slate-700 hover:text-brand-700 bg-white border border-slate-200 px-2.5 py-1.5 rounded-xl hover:bg-brand-50 transition-colors"
                       >
-                        Ingresar aquí
+                        Cambiar a este usuario
                       </button>
                     )}
 
-                    {canDelete && (
-                      <button
-                        onClick={() => setMemberToDelete(member)}
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
-                        title={`Eliminar a ${member.name}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setMemberToDelete(member)}
+                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                      title={`Eliminar integrante ${member.name}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
-
-        {/* Tablero de la Nevera (Notas compartidas) */}
-        <div className="bg-amber-50/70 rounded-3xl p-5 border border-amber-200/90 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <StickyNote className="w-5 h-5 text-amber-700" />
-              <h3 className="text-base sm:text-lg font-black text-amber-950">
-                Tablero de la Nevera
-              </h3>
-            </div>
-            <button
-              onClick={() => setIsFridgeNotesOpen(true)}
-              className="text-xs sm:text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white px-3.5 py-2 rounded-2xl shadow-xs transition-colors flex items-center gap-1.5"
-            >
-              <Plus className="w-4 h-4" />
-              Pegar Notita
-            </button>
-          </div>
-
-          <p className="text-sm text-amber-900/90 leading-relaxed">
-            Recordatorios del almuerzo, mensajes cariñosos o avisos sobre las porciones congeladas para el hogar.
-          </p>
-
-          <div className="space-y-2.5 pt-1">
-            {(!household.fridgeNotes || household.fridgeNotes.length === 0) ? (
-              <div className="text-center py-6 bg-white/80 rounded-2xl border border-dashed border-amber-300 space-y-1">
-                <p className="text-sm text-amber-800 font-medium">
-                  No hay notitas pegadas en la nevera todavía.
-                </p>
-                <button
-                  onClick={() => setIsFridgeNotesOpen(true)}
-                  className="text-xs sm:text-sm font-bold text-amber-950 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-xl transition-colors"
-                >
-                  ¡Sé el primero en dejar una!
-                </button>
-              </div>
-            ) : (
-              household.fridgeNotes.map((note) => (
-                <div
-                  key={note.id}
-                  className={`p-4 rounded-2xl border shadow-2xs relative ${note.color || 'bg-amber-100 border-amber-200 text-amber-950'}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm sm:text-base font-semibold leading-relaxed flex-1">
-                      {note.text}
-                    </p>
-                    <button
-                      onClick={() => {
-                        deleteFridgeNote(note.id);
-                        setHousehold(getHouseholdState());
-                      }}
-                      className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
-                      title="Despegar notita"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-black/10 text-xs font-bold opacity-75">
-                    <span>✍️ {note.authorName}</span>
-                    <span>{note.createdAt}</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
       </main>
 
-      {/* Confirmation Modal for Member Deletion */}
+      {/* Delete User Modal */}
       {memberToDelete && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 sm:p-6 animate-in zoom-in-95 duration-200 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-xl border border-slate-200">
             <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
             </div>
-            <div className="text-center">
+
+            <div className="text-center space-y-1.5">
               <h3 className="text-lg font-black text-slate-900">
                 ¿Eliminar a {memberToDelete.name}?
               </h3>
-              <p className="text-sm text-slate-600 mt-1">
-                Se eliminará el acceso con cédula <strong className="font-mono">{memberToDelete.cedula}</strong> de este hogar compartido.
+              <p className="text-xs sm:text-sm text-slate-600">
+                Esta acción removerá a este usuario del hogar.
               </p>
             </div>
-            <div className="flex items-center justify-center gap-3 pt-2">
+
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setMemberToDelete(null)}
-                className="w-1/2 py-2.5 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100"
               >
                 Cancelar
               </button>
               <button
                 type="button"
-                onClick={handleConfirmDeleteMember}
-                className="w-1/2 py-2.5 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors"
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-xs"
               >
-                Sí, Eliminar
+                Sí, eliminar
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal para Editar Perfil (Nombre y Foto) */}
+      {/* Edit Profile Modal */}
       {isEditProfileOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 sm:p-6 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-brand-600" />
-                Editar Mi Perfil
-              </h3>
-              <button
-                onClick={() => setIsEditProfileOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-xl border border-slate-200">
+            <h3 className="text-lg font-black text-slate-900">Editar Perfil</h3>
 
-            <form onSubmit={handleSaveProfile} className="py-4 space-y-4 text-sm">
-              <div className="flex flex-col items-center">
-                <div className="relative mb-2">
-                  {previewPhoto ? (
-                    <img
-                      src={previewPhoto}
-                      alt="Preview"
-                      className="w-24 h-24 rounded-3xl object-cover border-2 border-brand-500 shadow-md"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-3xl bg-slate-100 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400">
-                      <UserIcon className="w-10 h-10" />
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute -bottom-1 -right-1 bg-brand-600 hover:bg-brand-700 text-white p-2.5 rounded-xl shadow-md transition-colors"
-                  >
-                    <Camera className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-sm font-bold text-brand-700 hover:underline flex items-center gap-1.5 mt-1"
-                >
-                  <Upload className="w-4 h-4" />
-                  Subir foto desde galería
-                </button>
-
-                {previewPhoto && (
-                  <button
-                    type="button"
-                    onClick={() => setPreviewPhoto(null)}
-                    className="text-xs text-rose-600 hover:underline mt-1 font-semibold"
-                  >
-                    Quitar foto
-                  </button>
-                )}
-              </div>
-
+            <form onSubmit={handleSaveProfile} className="space-y-3.5">
               <div>
-                <label className="block font-bold text-slate-800 mb-1.5">
-                  Tu nombre o apodo
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Nombre:
                 </label>
                 <input
                   type="text"
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Ej. Camilo"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Foto de perfil:
+                </label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="text-xs text-slate-600 w-full"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsEditProfileOpen(false)}
-                  className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 text-sm font-bold bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-xs"
+                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-xs"
                 >
-                  Guardar Cambios
+                  Guardar
                 </button>
               </div>
             </form>
@@ -607,97 +575,74 @@ export default function HogarPage() {
         </div>
       )}
 
-      {/* Modal para Añadir Nuevo Usuario por Cédula y Contraseña */}
+      {/* Add User Modal */}
       {isAddUserOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 sm:p-6 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-3">
-              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-brand-600" />
-                Añadir Integrante al Hogar
-              </h3>
-              <button
-                onClick={() => setIsAddUserOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-xl border border-slate-200">
+            <h3 className="text-lg font-black text-slate-900">Añadir Nuevo Integrante</h3>
 
-            <p className="text-xs sm:text-sm text-slate-500 mb-4">
-              Podrá ingresar desde su teléfono con su Cédula y Contraseña compartiendo este mismo recetario.
-            </p>
-
-            <form onSubmit={handleAddMember} className="space-y-3.5 text-sm">
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Nombre o apodo
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Ej. Andrés"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm sm:text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
+            {errorMsg && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl">
+                {errorMsg}
               </div>
+            )}
 
+            {successMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl">
+                {successMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateMember} className="space-y-3 text-xs sm:text-sm">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Número de Cédula
-                </label>
+                <label className="block font-bold text-slate-700 mb-1">Cédula:</label>
                 <input
                   type="text"
                   required
                   value={newCedula}
                   onChange={(e) => setNewCedula(e.target.value)}
-                  placeholder="Ej. 1019283746"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm sm:text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono"
+                  placeholder="Número de cédula"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Contraseña de acceso
-                </label>
+                <label className="block font-bold text-slate-700 mb-1">Nombre completo:</label>
                 <input
-                  type="password"
+                  type="text"
                   required
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm sm:text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Nombre del integrante"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Rol en el hogar
-                </label>
+                <label className="block font-bold text-slate-700 mb-1">Rol:</label>
                 <select
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value as 'admin' | 'miembro')}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm sm:text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500"
                 >
-                  <option value="miembro">Miembro (Ver y tachar mercado)</option>
-                  <option value="admin">Administrador (Gestionar integrantes)</option>
+                  <option value="miembro">Miembro</option>
+                  <option value="admin">Administrador</option>
                 </select>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsAddUserOpen(false)}
-                  className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 rounded-xl text-slate-600 font-bold hover:bg-slate-100"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-sm font-bold bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-xs"
+                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-xs"
                 >
-                  Registrar Miembro
+                  Guardar integrante
                 </button>
               </div>
             </form>
@@ -705,19 +650,7 @@ export default function HogarPage() {
         </div>
       )}
 
-      {/* Fridge Notes Modal */}
-      <FridgeNotesModal
-        isOpen={isFridgeNotesOpen}
-        notes={household.fridgeNotes || []}
-        currentUserName={currentUser?.name || 'Hogar'}
-        onClose={() => {
-          setIsFridgeNotesOpen(false);
-          setHousehold(getHouseholdState());
-        }}
-        onUpdateNotes={() => setHousehold(getHouseholdState())}
-      />
-
-      <BottomNav pendingMarketCount={pendingMarketCount} />
+      <BottomNav />
     </div>
   );
 }

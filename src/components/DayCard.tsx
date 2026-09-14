@@ -132,6 +132,13 @@ export const DayCard: React.FC<DayCardProps> = ({
               {day.breakfast.quickNote}
             </p>
           )}
+
+          {day.beverage && (
+            <div className="mt-2 text-xs sm:text-sm font-bold text-emerald-950 bg-emerald-50/90 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+              <span>☕ <strong>Bebida recomendada:</strong> {day.beverage.name}</span>
+            </div>
+          )}
+
           <button
             onClick={() => onOpenRecipe(day.breakfast.recipeId)}
             className="mt-2.5 text-xs sm:text-sm font-bold text-amber-900 hover:text-amber-950 flex items-center gap-1 underline underline-offset-2"
@@ -201,6 +208,18 @@ export const DayCard: React.FC<DayCardProps> = ({
             <p className="text-xs sm:text-sm text-emerald-950 mt-2.5 flex items-start gap-1.5 leading-relaxed bg-white/70 p-2.5 rounded-xl border border-emerald-200/80">
               <Info className="w-4 h-4 shrink-0 mt-0.5 text-brand-700" />
               <span className="font-medium">{day.dinner.keyTip}</span>
+            </p>
+          )}
+
+          {day.prepAlert?.thaw && (
+            <p className="text-xs sm:text-sm text-blue-950 mt-2 flex items-center gap-1.5 bg-blue-50/80 p-2 rounded-xl border border-blue-200">
+              <span>🧊 <strong>Descongelar:</strong> {day.prepAlert.thaw}</span>
+            </p>
+          )}
+
+          {day.prepAlert?.soak && (
+            <p className="text-xs sm:text-sm text-amber-950 mt-2 flex items-center gap-1.5 bg-amber-50/80 p-2 rounded-xl border border-amber-200">
+              <span>🫘 <strong>Remojar:</strong> {day.prepAlert.soak}</span>
             </p>
           )}
 

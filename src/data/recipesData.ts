@@ -63,7 +63,12 @@ export const RECIPES: Recipe[] = [
     ],
     videoUrl: 'https://www.youtube.com/results?search_query=arepas+con+huevos+pericos+colombianos',
     recipeUrl: 'https://www.mycolombianrecipes.com/es/huevos-pericos-colombianos/',
-    recipeSourceName: 'My Colombian Recipes'
+    recipeSourceName: 'My Colombian Recipes',
+    beveragePairing: {
+      name: 'Chocolate tradicional colombiano de mesa',
+      type: 'chocolate',
+      description: 'Pastilla de chocolate tradicional disuelta en leche o agua tibia y batida con molinillo hasta formar espuma densa. Tip OMS: Endulzar con moderación.'
+    }
   },
 
   {
@@ -94,7 +99,12 @@ export const RECIPES: Recipe[] = [
     ],
     videoUrl: 'https://www.youtube.com/results?search_query=avena+trasnochada+overnight+oats',
     recipeUrl: 'https://www.mycolombianrecipes.com/es/avena-colombiana/',
-    recipeSourceName: 'Avena Colombiana'
+    recipeSourceName: 'Avena Colombiana',
+    beveragePairing: {
+      name: 'Café con leche matutino recién colado',
+      type: 'cafe',
+      description: 'Café colombiano colado con leche descremada caliente o tibia para energía matutina sostenida.'
+    }
   },
 
   {
@@ -123,7 +133,12 @@ export const RECIPES: Recipe[] = [
       'Si salen con prisa, arma una arepa rellena con el huevo y el queso para llevar y empaca la papaya aparte en refractaria.'
     ],
     videoUrl: 'https://www.youtube.com/results?search_query=desayuno+arepa+con+huevo+y+queso',
-    recipeSourceName: 'Desayuno Tradicional'
+    recipeSourceName: 'Desayuno Tradicional',
+    beveragePairing: {
+      name: 'Café campesino negro recién filtrado',
+      type: 'cafe',
+      description: 'Café negro colombiano filtrado en colador o greca, sin endulzantes calóricos, con aroma profundo.'
+    }
   },
 
   {
@@ -153,7 +168,12 @@ export const RECIPES: Recipe[] = [
       'Acompaña con 40 g de queso campesino por persona (puedes ponerlo al lado o en cubitos dentro de la avena caliente para que se funda).'
     ],
     videoUrl: 'https://www.youtube.com/results?search_query=avena+caliente+en+leche+colombiana',
-    recipeSourceName: 'Cocina Casera'
+    recipeSourceName: 'Cocina Casera',
+    beveragePairing: {
+      name: 'Aromática caliente de hierbas de la huerta',
+      type: 'aromatica',
+      description: 'Infusión caliente de hierbas frescas (hierbabuena o manzanilla) con limón, digestiva y sin calorías.'
+    }
   },
 
   {
@@ -185,7 +205,12 @@ export const RECIPES: Recipe[] = [
       'Sirve una porción moderada de calentado (no sobrecargues el plato), acompañada de huevos, 40 g de queso campesino y fruta fresca.'
     ],
     videoUrl: 'https://www.youtube.com/results?search_query=calentado+colombiano+desayuno',
-    recipeSourceName: 'Calentado Colombiano'
+    recipeSourceName: 'Calentado Colombiano',
+    beveragePairing: {
+      name: 'Chocolate tradicional o Café con leche',
+      type: 'chocolate',
+      description: 'Maridaje tradicional campesino para contrastar con la sazón del calentado.'
+    }
   },
 
   {
@@ -213,7 +238,12 @@ export const RECIPES: Recipe[] = [
       'Sirve cada arepa caliente coronada con el huevo, 50 g de queso campesino fresco y un plato abundante de fruta de temporada.'
     ],
     videoUrl: 'https://www.youtube.com/results?search_query=desayuno+arepa+con+queso+y+huevo',
-    recipeSourceName: 'Desayuno Exprés'
+    recipeSourceName: 'Desayuno Exprés',
+    beveragePairing: {
+      name: 'Café colombiano recién colado',
+      type: 'cafe',
+      description: 'Acompañamiento clásico para la arepa dorada con queso fresco campesino.'
+    }
   },
 
   // ==================== CENAS QUE DEJAN ALMUERZO (14 DÍAS) ====================
@@ -779,3 +809,6 @@ export const RECIPES: Recipe[] = [
     recipeSourceName: 'Tortilla Casera de Verduras'
   }
 ];
+
+export const ALL_RECIPES = RECIPES;
+

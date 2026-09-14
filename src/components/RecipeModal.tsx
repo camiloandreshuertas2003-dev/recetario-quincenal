@@ -13,9 +13,9 @@ import {
   ShieldAlert,
   UtensilsCrossed,
   Sparkles,
-  Wand2,
-  RefreshCw,
   Flame,
+  Coffee,
+  PackageCheck,
   CheckCircle2,
   Circle
 } from 'lucide-react';
@@ -76,9 +76,9 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
   };
 
   const getCategoryLabel = () => {
-    if (recipe.category === 'cena') return 'Cena para Almuerzo';
+    if (recipe.category === 'cena') return 'Cena de 4 porciones (Cena + Almuerzo)';
     if (recipe.category === 'almuerzo') return 'Almuerzo Inicial (5 min)';
-    return 'Desayuno Exprés';
+    return 'Desayuno Rápido y Completo';
   };
 
   return (
@@ -93,80 +93,67 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
               className="w-full h-full object-cover brightness-90"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-tr from-brand-800 to-warm-700 flex items-center justify-center">
+            <div className="w-full h-full bg-gradient-to-tr from-brand-800 to-amber-700 flex items-center justify-center">
               <Sparkles className="w-12 h-12 text-white/40" />
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-
-          {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/90 text-white rounded-full backdrop-blur-md transition-colors"
+            className="absolute top-3 right-3 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-colors z-10"
+            aria-label="Cerrar modal"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
 
-          {/* Top action pills */}
-          <div className="absolute top-3 left-3 flex items-center gap-2">
-            <button
-              onClick={handleRecreateWithAi}
-              disabled={isAiGenerating}
-              className="bg-white/95 hover:bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1.5"
-            >
-              {isAiGenerating ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin text-brand-600" />
-                  <span>Generando con IA...</span>
-                </>
-              ) : (
-                <>
-                  <Wand2 className="w-4 h-4 text-brand-600" />
-                  <span>Recrear con IA</span>
-                </>
-              )}
-            </button>
+          <button
+            onClick={handleRecreateWithAi}
+            disabled={isAiGenerating}
+            className="absolute bottom-3 right-3 px-3 py-1.5 bg-black/60 hover:bg-black/80 text-white text-xs font-bold rounded-xl backdrop-blur-md transition-all flex items-center gap-1.5 border border-white/20 shadow-md"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>{isAiGenerating ? 'Generando...' : 'Recrear foto con IA'}</span>
+          </button>
 
-            <button
-              onClick={() => setShowTimer(!showTimer)}
-              className={`text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-md transition-all flex items-center gap-1 ${
-                showTimer
-                  ? 'bg-amber-500 text-slate-950 font-black'
-                  : 'bg-black/60 text-white hover:bg-black/80'
-              }`}
-            >
-              <Flame className="w-4 h-4 text-warm-300" />
-              <span>Temporizador</span>
-            </button>
+          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+            <span className="bg-brand-600/90 text-white text-xs font-black px-3 py-1 rounded-xl shadow-md border border-white/20">
+              {getCategoryLabel()}
+            </span>
           </div>
 
-          {/* Bottom Title on Image */}
-          <div className="absolute bottom-3 left-4 right-4 text-white">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span
-                className={`text-xs font-black px-2.5 py-0.5 rounded-md ${
-                  recipe.category === 'cena'
-                    ? 'bg-emerald-500 text-white'
-                    : recipe.category === 'almuerzo'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-amber-500 text-slate-950'
-                }`}
-              >
-                {getCategoryLabel()}
-              </span>
-              <span className="text-xs bg-white/20 backdrop-blur-md text-white font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {recipe.prepTime}
-              </span>
-              <span className="text-xs bg-white/20 backdrop-blur-md text-white font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" />
-                {scaledPortions} porciones
-              </span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-black leading-tight drop-shadow-md">
+          <div className="absolute bottom-3 left-3 text-white max-w-[70%]">
+            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-widest block">
+              {recipe.highlightTag}
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black leading-tight drop-shadow-md">
               {recipe.title}
             </h2>
+          </div>
+        </div>
+
+        {/* Action Header: Yield, Timing & Timer Button */}
+        <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-bold text-slate-700">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-brand-600" />
+              {recipe.prepTime}
+            </span>
+            <span className="flex items-center gap-1.5 bg-brand-100 text-brand-950 px-2.5 py-1 rounded-xl">
+              <Users className="w-4 h-4 text-brand-700" />
+              {recipe.category === 'cena'
+                ? 'Rinde 4 porciones: 2 cena hoy + 2 almuerzo mañana'
+                : `${scaledPortions} porciones`}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowTimer(!showTimer)}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-black flex items-center gap-1.5 shadow-xs transition-colors"
+            >
+              <Flame className="w-4 h-4" />
+              <span>{showTimer ? 'Ocultar Timer' : 'Temporizador'}</span>
+            </button>
           </div>
         </div>
 
@@ -184,7 +171,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
         <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-slate-800">
           {/* AI Banner feedback if generated */}
           {aiGeneratedSuccess && (
-            <div className="p-3 rounded-2xl bg-brand-50 border border-brand-200 text-brand-950 text-sm flex items-start gap-2">
+            <div className="p-3.5 rounded-2xl bg-brand-50 border border-brand-200 text-brand-950 text-sm flex items-start gap-2">
               <Sparkles className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Foto culinaria recreada con IA para este plato:</p>
@@ -204,6 +191,19 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
               </h4>
               <p className="text-sm leading-relaxed font-medium">
                 {recipe.whyFilling}
+              </p>
+            </div>
+          )}
+
+          {/* Bebida complementaria recomendada (para desayunos) */}
+          {recipe.beveragePairing && (
+            <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-emerald-950 space-y-1">
+              <h4 className="font-black text-sm flex items-center gap-2 text-emerald-900">
+                <Coffee className="w-4 h-4 text-emerald-600" />
+                Bebida Recomendada: {recipe.beveragePairing.name}
+              </h4>
+              <p className="text-xs sm:text-sm leading-relaxed font-medium">
+                {recipe.beveragePairing.description}
               </p>
             </div>
           )}
@@ -250,7 +250,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
             <div className="flex items-center justify-between mb-2.5">
               <h3 className="font-black text-slate-900 flex items-center gap-2 text-sm sm:text-base uppercase tracking-wider">
                 <UtensilsCrossed className="w-5 h-5 text-brand-600" />
-                Ingredientes en crudo ({scaledPortions} porciones)
+                Ingredientes en crudo ({recipe.category === 'cena' ? '4 porciones' : `${scaledPortions} porciones`})
               </h3>
               <span className="text-xs text-slate-500 font-semibold">Toca para tachar</span>
             </div>
@@ -300,7 +300,7 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-2.5">
               <h3 className="font-black text-slate-900 flex items-center gap-2 text-sm sm:text-base uppercase tracking-wider">
-                <Sparkles className="w-5 h-5 text-warm-600" />
+                <Sparkles className="w-5 h-5 text-amber-600" />
                 Paso a paso de cocción
               </h3>
               <span className="text-xs text-slate-500 font-semibold">Toca el paso completado</span>
@@ -343,17 +343,19 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
 
           {/* Tips de empaque y seguridad */}
           {recipe.packingInstructions && (
-            <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-950 space-y-1.5">
+            <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-950 space-y-2">
               <h4 className="font-black text-sm flex items-center gap-2 text-amber-900">
-                <ShieldAlert className="w-5 h-5 text-amber-600" />
-                Seguridad y Empaque para el Almuerzo
+                <PackageCheck className="w-5 h-5 text-amber-600" />
+                Guía de Empaque y Conservación Segura
               </h4>
               <p className="text-sm leading-relaxed font-medium">
                 {recipe.packingInstructions}
               </p>
-              <p className="text-xs text-amber-900/80 font-bold pt-1 border-t border-amber-200/60">
-                Normativa MinSalud & USDA: Refrigera antes de 2 horas desde la cocción en recipientes herméticos poco profundos. Recalienta a 74 °C en el centro.
-              </p>
+              <div className="p-2.5 rounded-xl bg-white/70 border border-amber-200/80 text-xs text-amber-900 space-y-1">
+                <p><strong>🔥 Calientes juntos:</strong> Arroz, proteína, guiso y tubérculos.</p>
+                <p><strong>❄️ Fríos aparte:</strong> Aguacate, ensaladas de repollo o lechuga y limón.</p>
+                <p><strong>⏱️ Seguridad (USDA / MinSalud):</strong> Dejar entibiar y refrigerar antes de 2 horas. Recalentar hasta que el centro humee.</p>
+              </div>
             </div>
           )}
         </div>

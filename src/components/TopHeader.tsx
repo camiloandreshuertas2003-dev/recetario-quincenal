@@ -19,14 +19,14 @@ import { FridgeNotesModal } from './FridgeNotesModal';
 import { setServingMultiplier, getHouseholdState } from '@/lib/storage';
 
 interface TopHeaderProps {
-  user: User | null;
+  user?: User | null;
   servingMultiplier?: number;
   onLogout?: () => void;
   onRefresh?: () => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
-  user,
+  user = null,
   servingMultiplier = 1.0,
   onLogout,
   onRefresh

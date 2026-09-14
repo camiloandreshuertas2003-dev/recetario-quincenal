@@ -7,7 +7,8 @@ import { X, Check, ShoppingBag, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 interface SupermarketModeModalProps {
   items: MarketItem[];
   checkedItems: Record<string, { checked: boolean; checkedBy: string; checkedAt: string }>;
-  onToggleItem: (id: string) => void;
+  onToggleItem?: (id: string) => void;
+  onToggle?: (id: string) => void;
   onClose: () => void;
 }
 
@@ -15,8 +16,10 @@ export const SupermarketModeModal: React.FC<SupermarketModeModalProps> = ({
   items,
   checkedItems,
   onToggleItem,
+  onToggle,
   onClose
 }) => {
+  const toggleHandler = onToggle || onToggleItem || (() => {});
   const [showPendingOnly, setShowPendingOnly] = useState(true);
 
   const completedCount = items.filter((i) => checkedItems[i.id]?.checked).length;
@@ -92,7 +95,7 @@ export const SupermarketModeModal: React.FC<SupermarketModeModalProps> = ({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => onToggleItem(item.id)}
+                onClick={() => toggleHandler(item.id)}
                 className={`w-full p-4 rounded-2xl border text-left transition-all active:scale-[0.98] flex items-center justify-between gap-3 ${
                   isChecked
                     ? 'bg-slate-900/60 border-slate-800/80 opacity-50'

@@ -1,7 +1,7 @@
 import { User, HouseholdState, MarketItem, FridgeNote } from '@/types';
 import { SHOPPING_LIST_INITIAL } from '@/data/shoppingData';
 
-const STORAGE_KEY_STATE = 'recetario_household_state_v4';
+const STORAGE_KEY_STATE = 'recetario_household_state_v5';
 const STORAGE_KEY_SESSION = 'recetario_current_user_v1';
 
 const DEFAULT_USERS: User[] = [
@@ -44,7 +44,7 @@ const DEFAULT_NOTES: FridgeNote[] = [
   {
     id: 'note-2',
     authorName: 'Cristian',
-    text: '¡Acuérdate de bajar el paquete de pollo de 600g del congelador a las 5:00 PM!',
+    text: '¡Acuérdate de bajar el paquete de pollo del congelador a las 5:00 PM!',
     createdAt: 'Hoy, 8:15 AM',
     color: 'bg-emerald-50 border-emerald-200 text-emerald-900'
   }
@@ -57,10 +57,14 @@ const INITIAL_STATE: HouseholdState = {
   customItems: [],
   completedDays: [],
   activeWeek: 1,
+  selectedDayActive: 1,
   startDate: getInitialStartDate(),
   servingMultiplier: 1.0,
   fridgeNotes: DEFAULT_NOTES,
   estimatedBudgetCop: 195000,
+  routineMode: 'dinner_to_next_lunch',
+  marketAdjustments: {},
+  prepTasksChecked: {},
   updatedAt: new Date().toISOString()
 };
 
@@ -84,6 +88,18 @@ export function getHouseholdState(): HouseholdState {
     }
     if (!parsed.servingMultiplier) {
       parsed.servingMultiplier = 1.0;
+    }
+    if (!parsed.routineMode) {
+      parsed.routineMode = 'dinner_to_next_lunch';
+    }
+    if (!parsed.marketAdjustments) {
+      parsed.marketAdjustments = {};
+    }
+    if (!parsed.prepTasksChecked) {
+      parsed.prepTasksChecked = {};
+    }
+    if (!parsed.selectedDayActive) {
+      parsed.selectedDayActive = 1;
     }
     return parsed;
   } catch {
@@ -420,3 +436,115 @@ export function toggleDayCompleted(dayNumber: number): boolean {
   saveHouseholdState(state);
   return completed;
 }
+
+export function setActiveDay(dayNumber: number): void {
+  const state = getHouseholdState();
+  state.selectedDayActive = dayNumber;
+  saveHouseholdState(state);
+}
+
+export function setRoutineMode(mode: string): void {
+  const state = getHouseholdState();
+  state.routineMode = mode;
+  saveHouseholdState(state);
+}
+
+export function togglePrepTask(taskKey: string): boolean {
+  const state = getHouseholdState();
+  if (!state.prepTasksChecked) {
+    state.prepTasksChecked = {};
+  }
+  const isChecked = !!state.prepTasksChecked[taskKey];
+  state.prepTasksChecked[taskKey] = !isChecked;
+  saveHouseholdState(state);
+  return !isChecked;
+}
+
+export function updateMarketItemAdjustment(
+  itemId: string,
+  adjustments: {
+    realPriceCop?: number;
+    realAmountBought?: string;
+    realGramsBought?: number;
+    inPantry?: boolean;
+  }
+): void {
+  const state = getHouseholdState();
+  if (!state.marketAdjustments) {
+    state.marketAdjustments = {};
+  }
+  state.marketAdjustments[itemId] = {
+    ...state.marketAdjustments[itemId],
+    ...adjustments
+  };
+  saveHouseholdState(state);
+}
+
+export function togglePantryItem(itemId: string): boolean {
+  const state = getHouseholdState();
+  if (!state.marketAdjustments) {
+    state.marketAdjustments = {};
+  }
+  const current = state.marketAdjustments[itemId]?.inPantry ?? false;
+  const nextValue = !current;
+  state.marketAdjustments[itemId] = {
+    ...state.marketAdjustments[itemId],
+    inPantry: nextValue
+  };
+  saveHouseholdState(state);
+  return nextValue;
+}
+
+export function getMarketFinancialSummary(
+  state: HouseholdState,
+  allMarketItems: MarketItem[]
+) {
+  const adjustments = state.marketAdjustments || {};
+  let totalEstimated = 0;
+  let totalRealPaid = 0;
+  let itemsInPantryCount = 0;
+  let itemsBoughtCount = 0;
+  let itemsToBuyTotal = 0;
+
+  for (const item of allMarketItems) {
+    const adj = adjustments[item.id];
+    const isInPantry = adj?.inPantry ?? item.inPantry ?? false;
+    const isChecked = !!state.checkedItems[item.id]?.checked;
+
+    if (isInPantry) {
+      itemsInPantryCount++;
+      continue;
+    }
+
+    itemsToBuyTotal++;
+    const estPrice = item.estimatedPriceCop || 0;
+    totalEstimated += estPrice;
+
+    if (adj?.realPriceCop !== undefined && adj.realPriceCop > 0) {
+      totalRealPaid += adj.realPriceCop;
+    } else if (isChecked) {
+      // If checked but no custom real price entered, fall back to estimated
+      totalRealPaid += estPrice;
+    }
+
+    if (isChecked) {
+      itemsBoughtCount++;
+    }
+  }
+
+  const difference = totalEstimated - totalRealPaid; // positive = saving, negative = overspent
+
+  return {
+    totalEstimated,
+    totalRealPaid,
+    difference,
+    itemsInPantryCount,
+    itemsBoughtCount,
+    itemsToBuyTotal,
+    progressPercentage:
+      itemsToBuyTotal > 0
+        ? Math.round((itemsBoughtCount / itemsToBuyTotal) * 100)
+        : 100
+  };
+}
+
