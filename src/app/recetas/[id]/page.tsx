@@ -16,8 +16,12 @@ import {
   ExternalLink,
   ShieldAlert,
   UtensilsCrossed,
-  Sparkles
+  Sparkles,
+  Download,
+  Printer,
+  FileDown
 } from 'lucide-react';
+import { exportRecipeToPdf, printRecipe } from '@/lib/pdfExport';
 
 export default function RecipeDetailPage() {
   const params = useParams();
@@ -90,15 +94,61 @@ export default function RecipeDetailPage() {
               </span>
             </div>
 
-            <h1 className="text-xl font-extrabold text-slate-900 leading-tight">
-              {recipe.title}
-            </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h1 className="text-xl font-extrabold text-slate-900 leading-tight">
+                {recipe.title}
+              </h1>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => exportRecipeToPdf(recipe)}
+                  className="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-black text-xs shadow-xs flex items-center gap-1.5 transition-all"
+                  title="Descargar receta en PDF"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Descargar PDF</span>
+                </button>
+
+                <button
+                  onClick={() => printRecipe(recipe)}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                  title="Imprimir receta"
+                >
+                  <Printer className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
 
             {recipe.carbType && (
               <p className="text-xs text-amber-700 font-medium mt-1.5 bg-amber-50/80 px-2.5 py-1 rounded-md border border-amber-200/60 inline-block">
                 🌾 Carbohidrato: {recipe.carbType}
               </p>
             )}
+          </div>
+
+          {/* PDF Download Banner Card */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-brand-50 border border-emerald-200/90 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <FileDown className="w-5 h-5 text-emerald-100" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 leading-tight">
+                  Descarga esta receta en PDF
+                </h4>
+                <p className="text-[11px] text-slate-600 font-medium">
+                  Formato editorial para imprimir o llevar al celular sin conexión
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => exportRecipeToPdf(recipe)}
+              className="px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-black rounded-xl shadow-xs shrink-0 flex items-center gap-1.5 transition-all"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Descargar PDF</span>
+            </button>
           </div>
 
           {/* Video & External Links */}

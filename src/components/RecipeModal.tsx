@@ -7,6 +7,7 @@ import {
   toggleIngredientHave,
   isIngredientOwned
 } from '@/lib/storage';
+import { exportRecipeToPdf, printRecipe } from '@/lib/pdfExport';
 import { KitchenTimer } from './KitchenTimer';
 import {
   X,
@@ -18,7 +19,10 @@ import {
   ChevronRight,
   Sparkles,
   ShoppingBag,
-  Check
+  Check,
+  Download,
+  Printer,
+  FileDown
 } from 'lucide-react';
 
 interface RecipeModalProps {
@@ -36,6 +40,8 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
 }) => {
   const [checkedIngredients, setCheckedIngredients] = useState<Record<string, boolean>>({});
   const [showTimer, setShowTimer] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [pdfSuccessMessage, setPdfSuccessMessage] = useState(false);
 
   if (!recipe) return null;
 
@@ -54,6 +60,20 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
     toggleIngredientHave(ingName);
     // Force re-render
     setCheckedIngredients((prev) => ({ ...prev }));
+  };
+
+  const handleDownloadPdf = () => {
+    if (!recipe) return;
+    setIsDownloadingPdf(true);
+    try {
+      exportRecipeToPdf(recipe, servingMultiplier);
+      setPdfSuccessMessage(true);
+      setTimeout(() => setPdfSuccessMessage(false), 3500);
+    } catch (err) {
+      console.error('Error al generar PDF:', err);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   };
 
   const isCena = recipe.category === 'cena';
@@ -78,14 +98,34 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-all z-10"
-            aria-label="Cerrar modal"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {/* Top action buttons */}
+          <div className="absolute top-3.5 right-3.5 flex items-center gap-1.5 z-10">
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+              className="h-9 px-3 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center gap-1.5 text-xs font-bold transition-all backdrop-blur-xs shadow-md active:scale-95"
+              title="Descargar receta completa en PDF"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{isDownloadingPdf ? 'Generando...' : 'Descargar PDF'}</span>
+            </button>
+
+            <button
+              onClick={() => printRecipe(recipe, servingMultiplier)}
+              className="w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-all backdrop-blur-xs shadow-md active:scale-95"
+              title="Imprimir o vista previa"
+            >
+              <Printer className="w-4 h-4 text-amber-300" />
+            </button>
+
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-all backdrop-blur-xs shadow-md"
+              aria-label="Cerrar modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
           {/* Badge over photo */}
           <div className="absolute bottom-3.5 left-4 right-4 text-white">
@@ -101,6 +141,39 @@ export const RecipeModal: React.FC<RecipeModalProps> = ({
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           
+          {/* PDF Download Banner Card */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-brand-50 border border-emerald-200/90 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <FileDown className="w-5 h-5 text-emerald-100" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 leading-tight">
+                  Descarga la receta completa en PDF
+                </h4>
+                <p className="text-[11px] text-slate-600 font-medium">
+                  Diseño editorial con ingredientes exactos, pasos y empaque
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+              className="px-3 py-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs font-black rounded-xl shadow-xs shrink-0 flex items-center gap-1.5 transition-all"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{isDownloadingPdf ? 'Generando...' : 'Descargar PDF'}</span>
+            </button>
+          </div>
+
+          {pdfSuccessMessage && (
+            <div className="p-2.5 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <Check className="w-4 h-4 text-emerald-700" />
+              <span>¡PDF descargado con éxito! Revisa tus descargas.</span>
+            </div>
+          )}
+
           {/* 4 Portions Breakdown Badge (Screen 3 Reference) */}
           {isCena ? (
             <div className="p-3.5 rounded-2xl bg-gradient-to-r from-brand-50 to-emerald-50 border border-brand-200/90 text-brand-950 flex items-center justify-between shadow-2xs">

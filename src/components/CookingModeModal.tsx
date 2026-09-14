@@ -17,8 +17,10 @@ import {
   Utensils,
   Flame,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Download
 } from 'lucide-react';
+import { exportRecipeToPdf } from '@/lib/pdfExport';
 
 interface CookingModeModalProps {
   recipe: Recipe;
@@ -130,12 +132,24 @@ export const CookingModeModal: React.FC<CookingModeModalProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 rounded-2xl"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => exportRecipeToPdf(recipe)}
+              className="px-2.5 py-1.5 text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-xl transition-colors flex items-center gap-1 font-bold text-xs border border-brand-200"
+              title="Descargar receta en PDF"
+            >
+              <Download className="w-3.5 h-3.5 text-brand-600" />
+              <span className="hidden sm:inline">PDF</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2 text-slate-400 hover:text-slate-700 rounded-2xl"
+              aria-label="Cerrar modo cocina"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Modal Scrollable Body */}
