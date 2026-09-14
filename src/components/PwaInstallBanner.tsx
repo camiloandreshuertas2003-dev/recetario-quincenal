@@ -90,16 +90,18 @@ export const PwaInstallBanner: React.FC<PwaInstallBannerProps> = ({
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center">
-                  <Smartphone className="w-4 h-4" />
-                </div>
+              <div className="flex items-center gap-2.5">
+                <img
+                  src="/icon-192.png"
+                  alt="Icono de Nuestro menú"
+                  className="w-10 h-10 rounded-2xl shadow-xs border border-slate-200/80 object-cover"
+                />
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">
-                    Descargar en tu Celular
+                    Instalar Nuestro menú
                   </h3>
                   <p className="text-[10px] text-slate-500">
-                    Acceso directo rápido sin necesidad de tienda
+                    Icono oficial de cocina en tu pantalla
                   </p>
                 </div>
               </div>

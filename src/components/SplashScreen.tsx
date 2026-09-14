@@ -42,13 +42,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         {/* Glow effect */}
         <div className="absolute -top-10 w-44 h-44 bg-brand-500/20 rounded-full blur-3xl animate-pulse" />
 
-        {/* Distinctive Chef Icon Badge */}
+        {/* Distinctive Chef Cooking Icon Badge */}
         <div className="relative mb-5">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-brand-500 via-emerald-600 to-warm-400 p-1 shadow-2xl shadow-brand-500/40 flex items-center justify-center transform hover:scale-105 transition-transform animate-bounce duration-1000">
-            <div className="w-full h-full bg-slate-900/90 rounded-[20px] flex items-center justify-center relative overflow-hidden">
-              <ChefHat className="w-12 h-12 text-brand-400 stroke-[2.2px] drop-shadow-lg" />
-              <Sparkles className="w-4 h-4 text-warm-300 absolute top-2 right-2 animate-spin duration-3000" />
-            </div>
+          <div className="w-24 h-24 rounded-3xl p-1 shadow-2xl shadow-brand-500/40 flex items-center justify-center transform hover:scale-105 transition-transform animate-bounce duration-1000">
+            <img
+              src="/icon-192.png"
+              alt="Nuestro menú Icon"
+              className="w-full h-full rounded-[22px] object-cover shadow-inner border border-white/20"
+            />
           </div>
 
           <div className="absolute -bottom-1 -right-1 bg-warm-500 text-slate-950 p-1.5 rounded-full shadow-md">

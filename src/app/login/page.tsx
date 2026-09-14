@@ -84,8 +84,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center px-4 py-8">
       <div className="text-center mb-8">
-        <div className="inline-flex w-14 h-14 rounded-3xl bg-gradient-to-tr from-brand-600 to-warm-500 items-center justify-center text-white shadow-lg shadow-brand-500/20 mb-3">
-          <Sparkles className="w-8 h-8" />
+        <div className="inline-flex w-16 h-16 rounded-3xl shadow-xl shadow-brand-500/20 mb-3 overflow-hidden border border-slate-200">
+          <img
+            src="/icon-192.png"
+            alt="Nuestro menú"
+            className="w-full h-full object-cover"
+          />
         </div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">
           Nuestro menú

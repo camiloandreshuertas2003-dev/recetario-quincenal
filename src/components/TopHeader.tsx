@@ -58,10 +58,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-2.5 shadow-2xs">
         <div className="max-w-md mx-auto flex items-center justify-between">
           {/* Logo & App Name */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-warm-500 flex items-center justify-center text-white shadow-xs shadow-brand-500/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-4 h-4" />
-            </div>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <img
+              src="/icon-192.png"
+              alt="Nuestro menú"
+              className="w-8 h-8 rounded-xl object-cover shadow-xs border border-slate-200/80 group-hover:scale-105 transition-transform"
+            />
             <div>
               <h1 className="text-base font-black text-slate-900 tracking-tight leading-none">
                 Nuestro menú
